@@ -1,0 +1,42 @@
+{
+  "magnit": {
+    "base_url": "https://b2b-api.magnit.ru/",
+    "client_id": "a3fc5459-781c-47e8-b9c9-b9d6622053ae",
+    "client_secret": "a6psDoI7cukJRCIG0vHx",
+    "scope": "openid magnit-post:orders magnit-post:pickup-points"
+  },
+  "dadata": {
+    "api_key": "6edbb2bc2316e22f8c6813515d87a39ae06da954",
+    "secret_key": "41bd3221e238a152db623360c0a4ab6a06d466b1"
+  },
+  "yandex": {
+    "geocoder_api_key": "ca05fe00-c79a-4fe2-812a-11758ed257ba"
+  },
+  "delivery": {
+    "cost_without_vat_rub": 150,
+    "vat_rate_percent": 22
+  },
+  "cache": {
+    "pvz_ttl_hours": 24
+  },
+  "parcel_sizes": {
+    "S": {
+      "label": "25x15x10 cm",
+      "length_mm": 250,
+      "width_mm": 150,
+      "height_mm": 100
+    },
+    "M": {
+      "label": "35x25x15 cm",
+      "length_mm": 350,
+      "width_mm": 250,
+      "height_mm": 150
+    },
+    "L": {
+      "label": "45x30x20 cm",
+      "length_mm": 450,
+      "width_mm": 300,
+      "height_mm": 200
+    }
+  }
+}

@@ -1,0 +1,21 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #EMAIL#
+@@SUBJECT: #SHOP_NAME# — Заказ ##ORDER_ID# отправлен
+@@BODY:
+<h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Заказ отправлен</h2>
+<p style="margin:0 0 24px;color:#888;font-size:14px;">Заказ #ORDER_ID#</p>
+
+<p style="margin:0 0 20px;color:#333;">Здравствуйте, <strong>#ORDER_USER#</strong>!</p>
+<p style="margin:0 0 24px;color:#555;">Ваш заказ отправлен и находится в пути. Мы сообщим, когда он будет готов к выдаче.</p>
+<p style="margin:0 0 24px;color:#555;">Заказ уже оплачен, поэтому платить больше ничего не нужно.</p>
+
+#PVZDETAILS#
+
+#ORDER_LIST_HTML#
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" width="100%">
+<tr><td align="center">
+<a href="https://#SERVER_NAME#/#/orders/#UNIQUE_ORDER_ID#" style="display:inline-block;padding:14px 40px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:500;">Отследить доставку</a>
+</td></tr>
+</table>

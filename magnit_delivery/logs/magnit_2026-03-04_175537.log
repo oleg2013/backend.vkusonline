@@ -1,0 +1,17 @@
+2026-03-04 17:55:37 | main         | INFO    | Лог-файл: C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\logs\magnit_2026-03-04_175537.log
+2026-03-04 17:55:37 | main         | INFO    | Конфигурация загружена из C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\config.json
+2026-03-04 17:55:37 | magnit_api   | INFO    | Запрос OAuth-токена: POST https://b2b-api.magnit.ru/api/v2/oauth/token
+2026-03-04 17:55:37 | magnit_api   | DEBUG   | Payload: client_id=726501d8-66b8-4ce6-81d5-ae9dc5cfb31a, scope=openid magnit-post:orders magnit-post:pickup-points, grant_type=client_credentials
+2026-03-04 17:55:37 | magnit_api   | INFO    | Ответ авторизации: 400 (0.85 сек)
+2026-03-04 17:55:37 | magnit_api   | DEBUG   | Тело ответа: {"error":"invalid_client","error_description":"Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method)."}
+
+2026-03-04 17:55:37 | main         | ERROR   | Критическая ошибка авторизации
+Traceback (most recent call last):
+  File "C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\main.py", line 212, in main
+    magnit.authenticate()
+    ~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\magnit_api.py", line 82, in authenticate
+    raise MagnitAPIError(
+    ...<3 lines>...
+    )
+magnit_api.MagnitAPIError: Ошибка авторизации: HTTP 400

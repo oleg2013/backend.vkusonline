@@ -1,0 +1,99 @@
+{
+    "content": [
+        {
+            "id": "143185ac-189e-4471-9b2a-dd86f122a870",
+            "status": "ACTIVE",
+            "name": "VKUS COMPANY",
+            "countryId": "RU",
+            "regionCode": "78",
+            "federalDistrict": "Ленинградская",
+            "region": "Санкт-Петербург",
+            "index": "196105",
+            "city": "Санкт-Петербург",
+            "street": "Витебский",
+            "houseNumber": "д. 11 литера З,пом.2-н,часть103",
+            "coordinates": "59.876400, 30.348432",
+            "contactPhoneNumber": "78005507352",
+            "timeZone": "Europe/Moscow",
+            "workingTime": [
+                {
+                    "dayNumber": 1,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 2,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 3,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 4,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 5,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                }
+            ],
+            "partnerLocationId": "VKUS COMPANY",
+            "createDate": "2026-02-27T09:50:49.683301+03:00"
+        },
+        {
+            "id": "f6389674-af2c-4f0f-aa49-4966fcc19cda",
+            "status": "ACTIVE",
+            "name": "Москва офис",
+            "countryId": "RU",
+            "regionCode": "77",
+            "federalDistrict": "Москва",
+            "region": "Москва",
+            "index": "115191",
+            "city": "Москва",
+            "street": "Духовской переулок",
+            "houseNumber": "17с7",
+            "coordinates": "55.704717, 37.616351",
+            "contactPhoneNumber": "+79161162139",
+            "timeZone": "Europe/Moscow",
+            "workingTime": [
+                {
+                    "dayNumber": 1,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 2,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 3,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 4,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                },
+                {
+                    "dayNumber": 5,
+                    "timeFrom": "10:00:00",
+                    "timeTill": "18:00:00"
+                }
+            ],
+            "partnerLocationId": "VKUS COMPANY-2",
+            "createDate": "2026-02-27T15:28:49.227328+03:00"
+        }
+    ],
+    "totalPages": 1,
+    "numberOfElements": 2,
+    "size": 20,
+    "number": 0,
+    "totalElements": 2
+}

@@ -1,0 +1,23 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #EMAIL#
+@@SUBJECT: Добро пожаловать в #SHOP_NAME#!
+@@BODY:
+<h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Добро пожаловать!</h2>
+<p style="margin:0 0 24px;color:#888;font-size:14px;">#CLIENTREGISTER_DATE#</p>
+
+<p style="margin:0 0 20px;color:#333;">Здравствуйте, <strong>#ORDER_USER#</strong>!</p>
+<p style="margin:0 0 24px;color:#555;">Ваша учётная запись в <strong>#SHOP_NAME#</strong> успешно создана. Теперь вы можете отслеживать заказы и управлять профилем в личном кабинете.</p>
+
+<div style="margin:0 0 28px;padding:20px 24px;background-color:#FAF6F0;border-radius:12px;">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<tr><td style="padding:4px 0;font-size:13px;color:#888;">Email для входа</td><td style="padding:4px 0;text-align:right;font-size:14px;color:#333;font-weight:500;">#EMAIL#</td></tr>
+<tr><td style="padding:4px 0;font-size:13px;color:#888;">Пароль</td><td style="padding:4px 0;text-align:right;font-size:14px;color:#333;font-weight:500;font-family:monospace;">#CLIENTPASSWORD#</td></tr>
+</table>
+</div>
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" width="100%">
+<tr><td align="center">
+<a href="https://#SERVER_NAME#" style="display:inline-block;padding:14px 40px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:500;">Перейти в магазин</a>
+</td></tr>
+</table>

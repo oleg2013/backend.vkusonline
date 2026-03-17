@@ -1,0 +1,24 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #SALE_EMAIL#
+@@SUBJECT: Клиент подтвердил заказ ##ORDER_ID# (наложенный платёж)
+@@BODY:
+<h2 style="margin:0 0 16px;font-size:18px;font-weight:600;color:#333;">Заказ подтверждён клиентом</h2>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 20px;">
+<tr><td style="padding:6px 0;font-size:13px;color:#888;width:140px;">Заказ</td><td style="padding:6px 0;font-size:14px;color:#333;font-weight:600;">#ORDER_ID#</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Дата</td><td style="padding:6px 0;font-size:14px;color:#333;">#ORDER_DATE#</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Тип оплаты</td><td style="padding:6px 0;font-size:14px;color:#C8860A;font-weight:500;">Наложенный платёж</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Клиент</td><td style="padding:6px 0;font-size:14px;color:#333;">#ORDER_USER#</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Email</td><td style="padding:6px 0;font-size:14px;color:#333;">#EMAIL#</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Телефон</td><td style="padding:6px 0;font-size:14px;color:#333;">#PHONE#</td></tr>
+<tr><td style="padding:6px 0;font-size:13px;color:#888;">Сумма</td><td style="padding:6px 0;font-size:16px;color:#C8860A;font-weight:600;">#PRICE#</td></tr>
+</table>
+
+#ORDER_LIST_HTML#
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;" width="100%">
+<tr><td align="center">
+<a href="https://#SERVER_NAME#/#/orders/#UNIQUE_ORDER_ID#" style="display:inline-block;padding:12px 32px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;">Открыть заказ</a>
+</td></tr>
+</table>

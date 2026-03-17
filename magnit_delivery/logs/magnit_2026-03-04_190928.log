@@ -1,0 +1,18 @@
+2026-03-04 19:09:28 | main         | INFO    | Лог-файл: C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\logs\magnit_2026-03-04_190928.log
+2026-03-04 19:09:28 | main         | INFO    | Конфигурация загружена из C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\config.json
+2026-03-04 19:09:28 | magnit_api   | INFO    | Запрос OAuth-токена: POST https://b2b-api.magnit.ru/api/v2/oauth/token
+2026-03-04 19:09:28 | magnit_api   | DEBUG   | Payload: client_id=a3fc5459-781c-47e8-b9c9-b9d6622053ae, scope=openid magnit-post:orders magnit-post:pickup-points, grant_type=client_credentials
+2026-03-04 19:09:29 | magnit_api   | INFO    | Ответ авторизации: 200 (0.93 сек)
+2026-03-04 19:09:29 | magnit_api   | DEBUG   | Тело ответа: {"access_token":"eyJhbGciOiJSUzI1NiIsImtpZCI6IjdhYmU1NjNkLThhZTItNDZlYS1iOWEyLTRhNTdkMjk0YjczZSIsInR5cCI6IkpXVCJ9.eyJhdWQiOltdLCJjbGllbnRfaWQiOiJhM2ZjNTQ1OS03ODFjLTQ3ZTgtYjljOS1iOWQ2NjIyMDUzYWUiLCJleHAiOjE3NzI2NTEzNjksImV4dCI6eyJwYXJ0bmVyX2lkIjoiMjA3ZGI3YmMtNWRiYS00NzUxLTkwYWMtMzA3M2U3ZDNhZmVlIn0sImlhdCI6MTc3MjY0Nzc2OSwiaXNzIjoicGFydG5lci1iMmItYXV0aCIsImp0aSI6IjZlZWUyNDlkLWMzNjktNGMwYi1iZGE3LTU5ZTIwZGQxZWE5ZSIsInBhcnRuZXJfaWQiOiIyMDdkYjdiYy01ZGJhLTQ3NTEtOTBhYy0zMDczZTdkM2FmZWUiLCJzY3AiOlsib3Blbm
+2026-03-04 19:09:29 | magnit_api   | INFO    | Токен получен, действителен 3599 сек
+2026-03-04 19:09:29 | magnit_api   | INFO    | Запрос списка складов...
+2026-03-04 19:09:29 | magnit_api   | DEBUG   | Используем кешированный токен (истекает через 3599 сек)
+2026-03-04 19:09:29 | magnit_api   | INFO    | → GET https://b2b-api.magnit.ru/api/v1/magnit-post/warehouses
+2026-03-04 19:09:29 | magnit_api   | DEBUG   |   Params: None
+2026-03-04 19:09:29 | magnit_api   | DEBUG   |   Headers: {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': 'application/json', 'Connection': 'keep-alive', 'Authorization': 'Bearer eyJhbGc***'}
+2026-03-04 19:09:29 | magnit_api   | INFO    | ← 200 https://b2b-api.magnit.ru/api/v1/magnit-post/warehouses (0.15 сек)
+2026-03-04 19:09:29 | magnit_api   | DEBUG   |   Тело ответа (448 байт): [{"address":"Духовской переулок, 17с11, Москва","coordinates":{"latitude":55.704524,"longitude":37.61538},"warehouse_id":"42769f97-fd27-41c5-be86-a8bd3a9b0bed","warehouse_name":"Москва"},{"address":"Витебский проспект, 11литЗ, Санкт-Петербург","coordinates":{"latitude":59.8764,"longitude":30.348432},"warehouse_id":"b91366cf-e031-49f9-b875-1d3e0b20983b","warehouse_name":"СПБ"}]
+
+2026-03-04 19:09:29 | magnit_api   | INFO    | Получено складов: 2
+2026-03-04 19:09:29 | magnit_api   | DEBUG   |   Склад: 42769f97-fd27-41c5-be86-a8bd3a9b0bed — Москва (Духовской переулок, 17с11, Москва)
+2026-03-04 19:09:29 | magnit_api   | DEBUG   |   Склад: b91366cf-e031-49f9-b875-1d3e0b20983b — СПБ (Витебский проспект, 11литЗ, Санкт-Петербург)

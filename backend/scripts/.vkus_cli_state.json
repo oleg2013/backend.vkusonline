@@ -1,0 +1,8 @@
+{
+  "admin_secret": "s7Uja7F9cZTe-jCdrCrVfI8vfwlpJSBw5t4AhC5_Aug",
+  "guest_session_id": null,
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwNzVkNTA0ZS1iMDY0LTRiZTItOTA4YS1iNjNkNDIxYjUwOTYiLCJpYXQiOjE3NzMzNjI2MDQsImV4cCI6MTc3MzM2MzUwNCwidHlwZSI6ImFjY2VzcyJ9.poCm0cccc7jplCYdSeWMtT291_53YiIcvN6RBL0b5kQ",
+  "refresh_token": "9H2Xi7vK9YYOefNf-WH-siGucx9Jt63EdxDgEMhfz7zgmsMZ0nvMO5tHNXVISi5B",
+  "base_url": "https://api.vkus.online",
+  "detail_server_response": false
+}

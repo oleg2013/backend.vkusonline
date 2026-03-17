@@ -1,0 +1,104 @@
+# VKUS Online Backend — Log Configuration
+# Этот файл управляет системой логирования.
+# Изменения применяются при перезапуске сервисов.
+
+global:
+  log_dir: "logs"                    # корневая папка (относительно рабочей директории)
+  default_level: "INFO"             # DEBUG | INFO | WARNING | ERROR
+  format: "json"                    # json | text
+  stdout: true                      # дублировать в stdout (для systemd/journalctl)
+
+# Ротация и очистка
+retention:
+  max_file_size_mb: 50              # ротация файла при превышении (МБ)
+  max_files: 5                      # сколько ротированных копий хранить
+  max_age_days: 30                  # удалять логи старше N дней
+  archive_after_days: 7             # сжимать в tar.gz через N дней
+  detail_max_age_days: 3            # detail JSON-файлы хранить N дней
+  cleanup_cron: "02:00"             # время ежедневной очистки
+
+# API-сервис
+api:
+  summary:
+    enabled: true
+    level: "INFO"
+
+  detail_requests:
+    enabled: false                   # включать для отладки (полные request/response)
+    level: "DEBUG"
+    include_headers: true
+    include_request_body: true
+    include_response_body: true
+    max_body_size: 10000             # обрезать body длиннее N символов
+    mask_fields:
+      - password
+      - plain_password
+      - access_token
+      - refresh_token
+      - Authorization
+
+  errors:
+    enabled: true
+    level: "WARNING"
+    include_traceback: true
+
+  routers:
+    auth:       { enabled: true, level: "INFO" }
+    checkout:   { enabled: true, level: "INFO" }
+    payments:   { enabled: true, level: "INFO" }
+    delivery:   { enabled: true, level: "INFO" }
+    admin:      { enabled: true, level: "INFO" }
+    catalog:    { enabled: false }
+    cart:       { enabled: false }
+    geo:        { enabled: false }
+    webhooks:   { enabled: true, level: "INFO" }
+    orders:     { enabled: true, level: "INFO" }
+    public_orders: { enabled: true, level: "INFO" }
+
+# Worker-сервис
+worker:
+  summary:
+    enabled: true
+    level: "INFO"
+
+  jobs:
+    email_queue:         { enabled: true,  level: "INFO" }
+    cancel_unpaid:       { enabled: true,  level: "INFO" }
+    reconcile_payments:  { enabled: true,  level: "INFO" }
+    sync_5post:          { enabled: true,  level: "INFO" }
+    sync_magnit:         { enabled: true,  level: "INFO" }
+    poll_magnit:         { enabled: true,  level: "INFO" }
+    cleanup_guests:      { enabled: false }
+    cleanup_idempotency: { enabled: false }
+
+# Event Dispatcher
+events:
+  enabled: true
+  level: "INFO"
+
+# Интеграции (внешние API)
+integrations:
+  yookassa:
+    enabled: true
+    level: "INFO"
+    log_request_body: true
+    log_response_body: true
+    mask_fields: [secret_key]
+
+  fivepost:
+    enabled: true
+    level: "INFO"
+    log_request_body: false
+    log_response_body: false
+
+  magnit:
+    enabled: true
+    level: "INFO"
+    log_request_body: false
+    log_response_body: false
+
+  dadata:
+    enabled: true
+    level: "DEBUG"
+    log_request_body: true
+    log_response_body: true

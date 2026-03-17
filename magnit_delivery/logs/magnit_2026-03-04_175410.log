@@ -1,0 +1,16 @@
+2026-03-04 17:54:10 | main         | INFO    | Лог-файл: C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\logs\magnit_2026-03-04_175410.log
+2026-03-04 17:54:10 | main         | INFO    | Конфигурация загружена из C:\Users\oleg\Documents\GitHub\Magint_cli\magnit_delivery\config.json
+2026-03-04 17:54:10 | magnit_api   | INFO    | Запрос OAuth-токена: POST https://b2b-api-gateway.uat.ya.magnit.ru/api/v2/oauth/token
+2026-03-04 17:54:10 | magnit_api   | DEBUG   | Payload: client_id=726501d8-66b8-4ce6-81d5-ae9dc5cfb31a, scope=openid magnit-post:orders magnit-post:pickup-points, grant_type=client_credentials
+2026-03-04 17:54:11 | magnit_api   | INFO    | Ответ авторизации: 200 (0.95 сек)
+2026-03-04 17:54:11 | magnit_api   | DEBUG   | Тело ответа: {"access_token":"eyJhbGciOiJSUzI1NiIsImtpZCI6IjNmN2ZlMmExLTAzZDMtNDY5NS1iYzk0LTBlM2M5NzJkZWI2ZSIsInR5cCI6IkpXVCJ9.eyJhdWQiOltdLCJjbGllbnRfaWQiOiI3MjY1MDFkOC02NmI4LTRjZTYtODFkNS1hZTlkYzVjZmIzMWEiLCJleHAiOjE3NzI2NDY4NTAsImV4dCI6eyJwYXJ0bmVyX2lkIjoiMjA3ZGI3YmMtNWRiYS00NzUxLTkwYWMtMzA3M2U3ZDNhZmVlIn0sImlhdCI6MTc3MjY0MzI1MCwiaXNzIjoicGFydG5lci1iMmItYXV0aCIsImp0aSI6ImRkMDRmNTYzLTQ1ZmYtNDhiZC04OTNhLTVkOWI4YWU3NDk4NyIsInBhcnRuZXJfaWQiOiIyMDdkYjdiYy01ZGJhLTQ3NTEtOTBhYy0zMDczZTdkM2FmZWUiLCJzY3AiOlsib3Blbm
+2026-03-04 17:54:11 | magnit_api   | INFO    | Токен получен, действителен 3599 сек
+2026-03-04 17:54:11 | magnit_api   | INFO    | Запрос списка складов...
+2026-03-04 17:54:11 | magnit_api   | DEBUG   | Используем кешированный токен (истекает через 3599 сек)
+2026-03-04 17:54:11 | magnit_api   | INFO    | → GET https://b2b-api-gateway.uat.ya.magnit.ru/api/v1/magnit-post/warehouses
+2026-03-04 17:54:11 | magnit_api   | DEBUG   |   Params: None
+2026-03-04 17:54:11 | magnit_api   | DEBUG   |   Headers: {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': 'application/json', 'Connection': 'keep-alive', 'Authorization': 'Bearer eyJhbGc***'}
+2026-03-04 17:54:11 | magnit_api   | INFO    | ← 200 https://b2b-api-gateway.uat.ya.magnit.ru/api/v1/magnit-post/warehouses (0.30 сек)
+2026-03-04 17:54:11 | magnit_api   | DEBUG   |   Тело ответа (3 байт): []
+
+2026-03-04 17:54:11 | magnit_api   | INFO    | Получено складов: 0

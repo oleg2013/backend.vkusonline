@@ -1,0 +1,21 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #EMAIL#
+@@SUBJECT: #SHOP_NAME# — Спасибо за покупку!
+@@BODY:
+<h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Спасибо за покупку!</h2>
+<p style="margin:0 0 24px;color:#888;font-size:14px;">Заказ #ORDER_ID#</p>
+
+<p style="margin:0 0 20px;color:#333;">Здравствуйте, <strong>#ORDER_USER#</strong>!</p>
+<p style="margin:0 0 24px;color:#555;">Ваш заказ успешно получен. Благодарим за выбор нашего магазина! Надеемся, что вы останетесь довольны качеством наших продуктов.</p>
+
+<div style="margin:0 0 28px;padding:20px 24px;background-color:#F0F8E8;border-radius:12px;text-align:center;">
+<p style="margin:0;font-size:32px;">&#9749;</p>
+<p style="margin:8px 0 0;font-size:15px;color:#555;">Приятного чаепития!</p>
+</div>
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" width="100%">
+<tr><td align="center">
+<a href="https://#SERVER_NAME#" style="display:inline-block;padding:14px 40px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:500;">Перейти в магазин</a>
+</td></tr>
+</table>
