@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:yookassa.ru)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pip install -r requirements.txt)",
+      "Bash(python -c \"import yaml; from yookassa import Configuration, Payment; print\\(''OK: все модули импортируются''\\)\")",
+      "Bash(python -c \":*)",
+      "Bash(printf 'Петров Иван Сергеевич\\\\n+79161234567\\\\npetrov@test.ru\\\\nКлавиатура механическая\\\\n4500\\\\n2\\\\nд\\\\nМышь беспроводная\\\\n1200\\\\n1\\\\nн\\\\n\\\\nд\\\\n')",
+      "Bash(python main.py)",
+      "mcp__chrome-devtools__wait_for",
+      "mcp__chrome-devtools__fill",
+      "Bash(printf 'Сидоров Алексей Петрович\\\\n+79031112233\\\\nsidorov@test.ru\\\\nНаушники Bluetooth\\\\n2500\\\\n1\\\\nн\\\\n\\\\nд\\\\n')"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+# YooKassa CLI - Конфигурация
+yookassa:
+  shop_id: "1290955"
+  api_key: "test_Veshzf2S4ksgtkRdq7y_534YDVI47b5IqhzQ-xRXuDs"
+
+# Карта по умолчанию (тестовая, с 3D Secure)
+default_card:
+  number: "5555555555554477"
+  expiry: "05/30"
+  cvc: "111"
+
+# Параметры чека
+receipt:
+  tax_system_code: 1        # ОСН
+  vat_code: 11               # НДС 22%
+  payment_subject: "commodity"
+  payment_mode: "full_payment"
+
+# Локальный callback-сервер
+callback:
+  host: "localhost"
+  port: 8765
