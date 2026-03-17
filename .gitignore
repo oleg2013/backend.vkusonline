@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+
+backend/logs/
+backend/scripts/logs/
