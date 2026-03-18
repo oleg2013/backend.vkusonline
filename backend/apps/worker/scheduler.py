@@ -8,13 +8,14 @@ from apscheduler.triggers.interval import IntervalTrigger
 from apps.worker.jobs.cancel_unpaid_orders import cancel_unpaid_orders
 from apps.worker.jobs.cleanup_guest_sessions import cleanup_guest_sessions
 from apps.worker.jobs.cleanup_idempotency import cleanup_idempotency_keys
-from apps.worker.jobs.poll_magnit_statuses import poll_magnit_statuses
+from apps.worker.jobs.poll_shipment_statuses import poll_fivepost_statuses, poll_magnit_statuses
 from apps.worker.jobs.reconcile_pending_payments import reconcile_pending_payments
 from apps.worker.jobs.sync_5post_points import sync_fivepost_points
 from apps.worker.jobs.send_email import process_email_queue
 from apps.worker.jobs.process_shipments import process_shipment_queue
 from apps.worker.jobs.cleanup_logs import cleanup_logs
 from apps.worker.jobs.sync_magnit_points import sync_magnit_points
+from packages.core.config import settings
 
 logger = structlog.get_logger(__name__)
 
@@ -39,12 +40,21 @@ def setup_scheduler() -> AsyncIOScheduler:
         replace_existing=True,
     )
 
-    # Poll Magnit statuses every 2 hours
+    # Poll 5Post shipment statuses (configurable interval)
+    scheduler.add_job(
+        poll_fivepost_statuses,
+        IntervalTrigger(minutes=settings.fivepost_poll_interval_minutes),
+        id="poll_fivepost_statuses",
+        name="Poll 5Post shipment statuses",
+        replace_existing=True,
+    )
+
+    # Poll Magnit shipment statuses (configurable interval)
     scheduler.add_job(
         poll_magnit_statuses,
-        IntervalTrigger(hours=2),
+        IntervalTrigger(minutes=settings.magnit_poll_interval_minutes),
         id="poll_magnit_statuses",
-        name="Poll Magnit order statuses",
+        name="Poll Magnit shipment statuses",
         replace_existing=True,
     )
 

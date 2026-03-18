@@ -1283,11 +1283,14 @@ class CLIApp:
                 created = (o.get("created_at", "") or "")[:16]
                 token = o.get("public_token", "") or ""
                 token_short = f"…{token[-12:]}" if len(token) > 12 else token
+                provider = o.get("delivery_provider", "")
+                provider_label = {"5post": "5Post", "magnit": "Магнит"}.get(provider, provider)
                 rows.append([
                     str(i),
                     str(o.get("order_number", "")),
                     o.get("order_type", o.get("type", "?")),
                     o.get("status_label", o.get("status", "")),
+                    provider_label,
                     token_short,
                     o.get("customer_name", ""),
                     o.get("customer_email", ""),
@@ -1299,8 +1302,8 @@ class CLIApp:
                 f"Заказы — стр. {page}/{total_pages} (всего {total}{filter_label})",
                 [
                     ("#", "right"), ("Номер", "left"), ("Тип", "left"), ("Статус", "left"),
-                    ("Token", "left"), ("Клиент", "left"), ("Email", "left"), ("Сумма", "right"),
-                    ("Позиций", "right"), ("Дата", "left"),
+                    ("Доставка", "left"), ("Token", "left"), ("Клиент", "left"), ("Email", "left"),
+                    ("Сумма", "right"), ("Позиций", "right"), ("Дата", "left"),
                 ],
                 rows,
             )

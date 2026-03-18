@@ -39,6 +39,8 @@ class Settings(BaseSettings):
     fivepost_partner_location_id: str = ""
     fivepost_map_version: str = "v1"  # "v1" = client clustering, "v2" = server clustering
     fivepost_map_cluster_detail: int = 4  # grid divisor: higher = more clusters, more detail (1=coarse, 4=like 5Post)
+    fivepost_poll_interval_minutes: int = 30  # how often to poll 5Post for status changes
+    magnit_poll_interval_minutes: int = 30  # how often to poll Magnit for status changes
 
     # Magnit
     magnit_base_url: str = "https://b2b-api.magnit.ru"

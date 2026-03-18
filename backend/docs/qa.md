@@ -95,3 +95,5 @@ FIVEPOST_API_KEY=... LIVE_TESTS=1 pytest tests/contract/ -k live -v
 | Business logic (checkout, cart) | 85%+ |
 | Integration clients | 70%+ (with mocks) |
 | API routers | 70%+ |
+
+======================================

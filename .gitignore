@@ -3,3 +3,4 @@ __pycache__/
 
 backend/logs/
 backend/scripts/logs/
+*.log

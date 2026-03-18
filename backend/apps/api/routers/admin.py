@@ -373,6 +373,8 @@ async def list_orders(
                     "order_type": o.order_type,
                     "status": o.status,
                     "status_label": get_status_label(o.status),
+                    "delivery_provider": o.delivery_provider,
+                    "payment_method": o.payment_method,
                     "public_token": o.guest_order_token,
                     "customer_name": o.customer_name,
                     "customer_email": o.customer_email,
