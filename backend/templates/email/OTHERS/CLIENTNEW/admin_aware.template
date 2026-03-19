@@ -3,11 +3,11 @@
 @@TO: #SALE_EMAIL#
 @@SUBJECT: Новый клиент — #ORDER_USER#
 @@BODY:
-<h2 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#111;">Регистрация нового клиента</h2>
+<h2 style="margin:0 0 20px;font-size:24px;font-weight:700;color:#1F2937;font-family:Arial,Helvetica,sans-serif;">Регистрация нового клиента</h2>
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 24px;border-collapse:collapse;">
-<tr><td style="padding:10px 12px;font-size:15px;color:#666;width:160px;border-bottom:1px solid #eee;">Имя</td><td style="padding:10px 12px;font-size:16px;color:#111;font-weight:500;border-bottom:1px solid #eee;">#ORDER_USER#</td></tr>
-<tr><td style="padding:10px 12px;font-size:15px;color:#666;border-bottom:1px solid #eee;">Email</td><td style="padding:10px 12px;font-size:16px;color:#111;border-bottom:1px solid #eee;">#EMAIL#</td></tr>
-<tr><td style="padding:10px 12px;font-size:15px;color:#666;border-bottom:1px solid #eee;">Телефон</td><td style="padding:10px 12px;font-size:16px;color:#111;border-bottom:1px solid #eee;">#PHONE#</td></tr>
-<tr><td style="padding:10px 12px;font-size:15px;color:#666;">Дата регистрации</td><td style="padding:10px 12px;font-size:16px;color:#111;">#CLIENTREGISTER_DATE#</td></tr>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 28px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;width:170px;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Имя</td><td style="padding:12px 16px;font-size:16px;color:#111827;font-weight:600;border-bottom:1px solid #E5E7EB;">#ORDER_USER#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Email</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#EMAIL#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Телефон</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#PHONE#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;background:#F9FAFB;">Дата регистрации</td><td style="padding:12px 16px;font-size:16px;color:#111827;">#CLIENTREGISTER_DATE#</td></tr>
 </table>

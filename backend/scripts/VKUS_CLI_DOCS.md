@@ -31,10 +31,10 @@
 
 ### 1.2 Зависимости
 
-| Пакет | Зачем | Обязательный |
-|-------|-------|:------------:|
-| `httpx` | Async HTTP-клиент для API-запросов | Да |
-| `rich` | Цветные таблицы, панели в терминале | Нет (fallback на plain text) |
+| Пакет     | Зачем                                            | Обязательный                   |
+| --------- | ------------------------------------------------ | :----------------------------: |
+| `httpx`   | Async HTTP-клиент для API-запросов               | Да                             |
+| `rich`    | Цветные таблицы, панели в терминале              | Нет (fallback на plain text)   |
 | `aiohttp` | Локальный webhook-сервер для тестирования оплаты | Нет (только для меню «Оплата») |
 
 Все зависимости указаны в `backend/pyproject.toml`.
@@ -76,28 +76,28 @@ logs/cli/
 
 #### Ключевые поля
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `session_dir` | `Path` | Корневая папка сессии: `logs/cli/{timestamp}/` |
-| `_detail_mode` | `bool` | Писать ли полные detail-файлы |
-| `_context` | `str \| None` | Текущее активное меню (`"delivery"`, `"qa"`, ...) |
-| `_seq` | `int` | Глобальный счётчик запросов (001, 002, ...) |
-| `_summary_files` | `dict[str, IO]` | Открытые файлы `{context}.log` |
-| `_pending_request` | `dict` | Данные текущего запроса (для объединения с ответом в detail-файл) |
-| `_session_log` | `IO` | Файл `session.log` |
+| Поле               | Тип             | Описание                                                          |
+| ------------------ | --------------- | ----------------------------------------------------------------- |
+| `session_dir`      | `Path`          | Корневая папка сессии: `logs/cli/{timestamp}/`                    |
+| `_detail_mode`     | `bool`          | Писать ли полные detail-файлы                                     |
+| `_context`         | `str \| None`   | Текущее активное меню (`"delivery"`, `"qa"`, ...)                 |
+| `_seq`             | `int`           | Глобальный счётчик запросов (001, 002, ...)                       |
+| `_summary_files`   | `dict[str, IO]` | Открытые файлы `{context}.log`                                    |
+| `_pending_request` | `dict`          | Данные текущего запроса (для объединения с ответом в detail-файл) |
+| `_session_log`     | `IO`            | Файл `session.log`                                                |
 
 #### Методы
 
-| Метод | Описание |
-|-------|----------|
-| `set_context(name)` | Переключает запись в подпапку меню. Создаёт папку и summary-лог при первом вызове |
-| `reset_context()` | Сбрасывает контекст (возврат в главное меню) |
-| `request(method, url, headers, body, params=None)` | Логирует запрос: summary + stash для detail-файла |
-| `response(status, elapsed_ms, body, request_id=None)` | Логирует ответ: summary (обрезка ≤5000 симв.) + detail JSON (если включен) |
-| `info(msg)` | Информационная запись в оба лога |
-| `detail_mode` (property) | Getter/setter для переключения режима на лету |
-| `path` (property) | Возвращает `session_dir` (для отображения в UI) |
-| `close()` | Закрывает все открытые файлы |
+| Метод                                                 | Описание                                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `set_context(name)`                                   | Переключает запись в подпапку меню. Создаёт папку и summary-лог при первом вызове |
+| `reset_context()`                                     | Сбрасывает контекст (возврат в главное меню)                                      |
+| `request(method, url, headers, body, params=None)`    | Логирует запрос: summary + stash для detail-файла                                 |
+| `response(status, elapsed_ms, body, request_id=None)` | Логирует ответ: summary (обрезка ≤5000 симв.) + detail JSON (если включен)        |
+| `info(msg)`                                           | Информационная запись в оба лога                                                  |
+| `detail_mode` (property)                              | Getter/setter для переключения режима на лету                                     |
+| `path` (property)                                     | Возвращает `session_dir` (для отображения в UI)                                   |
+| `close()`                                             | Закрывает все открытые файлы                                                      |
 
 #### Формат detail-файла
 
@@ -155,17 +155,17 @@ VkusAPI(base_url: str, logger: FileLogger)
 
 #### Ключевые поля
 
-| Поле | Тип | Описание |
-|------|-----|----------|
-| `base_url` | `str` | Базовый URL без trailing slash |
-| `logger` | `FileLogger` | Ссылка на логгер |
-| `client` | `httpx.AsyncClient` | HTTP-клиент (timeout=30s) |
-| `guest_session_id` | `str \| None` | Guest session UUID |
-| `access_token` | `str \| None` | JWT токен пользователя |
-| `refresh_token` | `str \| None` | Refresh токен |
-| `admin_secret` | `str \| None` | Admin Bearer secret |
-| `last_request_id` | `str \| None` | request_id последнего ответа |
-| `last_elapsed_ms` | `int` | Время последнего запроса (мс) |
+| Поле               | Тип                 | Описание                       |
+| ------------------ | ------------------- | ------------------------------ |
+| `base_url`         | `str`               | Базовый URL без trailing slash |
+| `logger`           | `FileLogger`        | Ссылка на логгер               |
+| `client`           | `httpx.AsyncClient` | HTTP-клиент (timeout=30s)      |
+| `guest_session_id` | `str \| None`       | Guest session UUID             |
+| `access_token`     | `str \| None`       | JWT токен пользователя         |
+| `refresh_token`    | `str \| None`       | Refresh токен                  |
+| `admin_secret`     | `str \| None`       | Admin Bearer secret            |
+| `last_request_id`  | `str \| None`       | request_id последнего ответа   |
+| `last_elapsed_ms`  | `int`               | Время последнего запроса (мс)  |
 
 #### Метод `call()`
 
@@ -181,13 +181,13 @@ async def call(
 
 **Режимы авторизации (`auth`):**
 
-| Значение | Заголовок |
-|----------|-----------|
-| `"none"` | Без авторизации |
-| `"guest"` | `X-Guest-Session-ID: {uuid}` |
-| `"user"` | `Authorization: Bearer {access_token}` |
-| `"admin"` | `Authorization: Bearer {admin_secret}` |
-| `"guest+user"` | Оба заголовка |
+| Значение       | Заголовок                              |
+| -------------- | -------------------------------------- |
+| `"none"`       | Без авторизации                        |
+| `"guest"`      | `X-Guest-Session-ID: {uuid}`           |
+| `"user"`       | `Authorization: Bearer {access_token}` |
+| `"admin"`      | `Authorization: Bearer {admin_secret}` |
+| `"guest+user"` | Оба заголовка                          |
 
 **Поток выполнения:**
 1. Формирует URL: `{base_url}/api/v1{path}`
@@ -238,14 +238,14 @@ CLIApp(base_url: str)
 
 #### Утилиты ввода
 
-| Метод | Описание |
-|-------|----------|
-| `ask(prompt, default="")` | Ввод строки с дефолтом |
-| `ask_int(prompt, default=0)` | Ввод числа с дефолтом |
-| `pause()` | Ожидание нажатия Enter |
-| `show_menu(title, items)` | Отрисовка меню, возвращает выбранный пункт |
+| Метод                              | Описание                                       |
+| ---------------------------------- | ---------------------------------------------- |
+| `ask(prompt, default="")`          | Ввод строки с дефолтом                         |
+| `ask_int(prompt, default=0)`       | Ввод числа с дефолтом                          |
+| `pause()`                          | Ожидание нажатия Enter                         |
+| `show_menu(title, items)`          | Отрисовка меню, возвращает выбранный пункт     |
 | `show_result(elapsed, request_id)` | Показывает время и request_id после API-вызова |
-| `_meta_line()` | Строка состояния (guest id, token, путь лога) |
+| `_meta_line()`                     | Строка состояния (guest id, token, путь лога)  |
 
 ---
 
@@ -266,14 +266,14 @@ CLIApp(base_url: str)
 
 ### 3.2 Доставка → `menu_delivery()`
 
-| Пункт | Метод | API-эндпоинт | HTTP |
-|-------|-------|-------------|------|
-| 1. Автокомплит города | `_delivery_suggest()` | `/geo/city-suggest` | POST |
-| 2. Варианты доставки | `_delivery_options()` | `/checkout/delivery-options` | POST |
-| 3. Список ПВЗ | `_delivery_points()` | `/delivery/{provider}/pickup-points` | GET |
-| 4. Расчёт стоимости | `_delivery_estimate()` | `/checkout/estimate-delivery` | POST |
-| 5. Города Магнит | `_delivery_cities()` | `/delivery/magnit/cities` | GET |
-| 6. Полный сценарий | `_delivery_flow()` | suggest → options → points → estimate | Цепочка |
+| Пункт                 | Метод                  | API-эндпоинт                          | HTTP    |
+| --------------------- | ---------------------- | ------------------------------------- | ------- |
+| 1. Автокомплит города | `_delivery_suggest()`  | `/geo/city-suggest`                   | POST    |
+| 2. Варианты доставки  | `_delivery_options()`  | `/checkout/delivery-options`          | POST    |
+| 3. Список ПВЗ         | `_delivery_points()`   | `/delivery/{provider}/pickup-points`  | GET     |
+| 4. Расчёт стоимости   | `_delivery_estimate()` | `/checkout/estimate-delivery`         | POST    |
+| 5. Города Магнит      | `_delivery_cities()`   | `/delivery/magnit/cities`             | GET     |
+| 6. Полный сценарий    | `_delivery_flow()`     | suggest → options → points → estimate | Цепочка |
 
 **`_delivery_flow()`** — интерактивный 4-шаговый сценарий:
 1. Город (autocomplete) → выбор
@@ -283,13 +283,13 @@ CLIApp(base_url: str)
 
 ### 3.3 Заказы → `menu_orders()`
 
-| Пункт | Метод | API-эндпоинт | HTTP | Auth |
-|-------|-------|-------------|------|------|
+| Пункт            | Метод             | API-эндпоинт                   | HTTP | Auth  |
+| ---------------- | ----------------- | ------------------------------ | ---- | ----- |
 | 1. Создать заказ | `_order_create()` | `/guest/checkout/create-order` | POST | guest |
-| 2. Статус | `_order_status()` | `/guest/orders/{num}/status` | GET | guest |
-| 3. Детали | `_order_detail()` | `/guest/orders/{num}` | GET | guest |
-| 4. Отменить | `_order_cancel()` | `/guest/orders/{num}/cancel` | POST | guest |
-| 5. Список | `_order_list()` | `/me/orders` | GET | user |
+| 2. Статус        | `_order_status()` | `/guest/orders/{num}/status`   | GET  | guest |
+| 3. Детали        | `_order_detail()` | `/guest/orders/{num}`          | GET  | guest |
+| 4. Отменить      | `_order_cancel()` | `/guest/orders/{num}/cancel`   | POST | guest |
+| 5. Список        | `_order_list()`   | `/me/orders`                   | GET  | user  |
 
 **`_order_create()`** — полный checkout:
 1. `ensure_guest()` → guest session
@@ -301,11 +301,11 @@ CLIApp(base_url: str)
 
 ### 3.4 Оплата → `menu_payment()`
 
-| Пункт | Метод | API-эндпоинт | HTTP | Auth |
-|-------|-------|-------------|------|------|
-| 1. Полный тест E2E | `_payment_full_test()` | create-order → payment → webhook | Цепочка | guest |
-| 2. Создать платёж | `_payment_create()` | `/guest/orders/{num}/payments/yookassa/create` | POST | guest |
-| 3. Статус | `_order_status()` | `/guest/orders/{num}/status` | GET | guest |
+| Пункт              | Метод                  | API-эндпоинт                                   | HTTP    | Auth  |
+| ------------------ | ---------------------- | ---------------------------------------------- | ------- | ----- |
+| 1. Полный тест E2E | `_payment_full_test()` | create-order → payment → webhook               | Цепочка | guest |
+| 2. Создать платёж  | `_payment_create()`    | `/guest/orders/{num}/payments/yookassa/create` | POST    | guest |
+| 3. Статус          | `_order_status()`      | `/guest/orders/{num}/status`                   | GET     | guest |
 
 **`_payment_full_test()`** — E2E тест:
 1. `_order_create(payment_method="card")`
@@ -316,26 +316,26 @@ CLIApp(base_url: str)
 
 ### 3.5 Авторизация → `menu_auth()`
 
-| Пункт | Метод | API-эндпоинт | HTTP |
-|-------|-------|-------------|------|
-| 1. Регистрация | `_auth_register()` | `/auth/register` | POST |
-| 2. Логин | `_auth_login()` | `/auth/login` | POST |
-| 3. Профиль | `_auth_profile()` | `/me` | GET (auth=user) |
-| 4. Выход | `_auth_logout()` | `/auth/logout` | POST |
+| Пункт          | Метод              | API-эндпоинт     | HTTP            |
+| -------------- | ------------------ | ---------------- | --------------- |
+| 1. Регистрация | `_auth_register()` | `/auth/register` | POST            |
+| 2. Логин       | `_auth_login()`    | `/auth/login`    | POST            |
+| 3. Профиль     | `_auth_profile()`  | `/me`            | GET (auth=user) |
+| 4. Выход       | `_auth_logout()`   | `/auth/logout`   | POST            |
 
 После логина/регистрации `access_token` и `refresh_token` сохраняются в state.
 
 ### 3.6 Администрирование → `menu_admin()`
 
-| Пункт | API-эндпоинт | HTTP | Auth |
-|-------|-------------|------|------|
-| 1. Детали заказа | `/admin/orders/{num}` | GET | admin |
-| 2. Статус кэша ПВЗ | `/admin/pickup-points/cache-status` | GET | admin |
-| 3. Синхронизация 5Post | `/admin/jobs/sync-5post-points` | POST | admin |
-| 4. Синхронизация Магнит | `/admin/jobs/sync-magnit-points` | POST | admin |
-| 5. События провайдеров | `/admin/provider-events` | GET | admin |
-| 6. Список заказов | `/admin/orders` | GET | admin |
-| 7. Управление клиентами | `/admin/clients` | GET | admin |
+| Пункт                   | API-эндпоинт                        | HTTP | Auth  |
+| ----------------------- | ----------------------------------- | ---- | ----- |
+| 1. Детали заказа        | `/admin/orders/{num}`               | GET  | admin |
+| 2. Статус кэша ПВЗ      | `/admin/pickup-points/cache-status` | GET  | admin |
+| 3. Синхронизация 5Post  | `/admin/jobs/sync-5post-points`     | POST | admin |
+| 4. Синхронизация Магнит | `/admin/jobs/sync-magnit-points`    | POST | admin |
+| 5. События провайдеров  | `/admin/provider-events`            | GET  | admin |
+| 6. Список заказов       | `/admin/orders`                     | GET  | admin |
+| 7. Управление клиентами | `/admin/clients`                    | GET  | admin |
 
 При первом входе запрашивает admin secret (или берёт из env `VKUS_ADMIN_SECRET`).
 
@@ -358,11 +358,11 @@ CLIApp(base_url: str)
 
 Показывает текущие настройки и позволяет изменить:
 
-| Пункт | Действие |
-|-------|----------|
-| 1. Base URL | Изменить URL API |
-| 2. Guest session | Сбросить guest session |
-| 3. Admin secret | Задать admin secret |
+| Пункт               | Действие                                        |
+| ------------------- | ----------------------------------------------- |
+| 1. Base URL         | Изменить URL API                                |
+| 2. Guest session    | Сбросить guest session                          |
+| 3. Admin secret     | Задать admin secret                             |
 | 4. Детальные ответы | Переключить `detail_server_response` (ВКЛ/ВЫКЛ) |
 
 ---
@@ -424,16 +424,16 @@ async def _qa_test_name(self, st: dict[str, Any]) -> str
 
 ### 5.1 Константы
 
-| Константа | Значение | Описание |
-|-----------|----------|----------|
-| `DEFAULT_BASE_URL` | `"https://api.vkus.online"` | API по умолчанию |
-| `API_PREFIX` | `"/api/v1"` | Префикс всех эндпоинтов |
-| `STATE_FILE` | `".vkus_cli_state.json"` | Файл состояния |
-| `LOG_DIR` | `Path("logs/cli")` | Корневая папка логов |
-| `DEFAULT_SKU` | `"701"` | Товар по умолчанию для тестов (Кофе Espresso) |
-| `WEBHOOK_PORT` | `8080` | Порт webhook-сервера |
-| `WEBHOOK_TIMEOUT` | `300` | Таймаут ожидания webhook (секунды) |
-| `MENU_CONTEXTS` | `{"1":"delivery",...}` | Маппинг номеров меню → названия контекстов |
+| Константа          | Значение                    | Описание                                      |
+| ------------------ | --------------------------- | --------------------------------------------- |
+| `DEFAULT_BASE_URL` | `"https://api.vkus.online"` | API по умолчанию                              |
+| `API_PREFIX`       | `"/api/v1"`                 | Префикс всех эндпоинтов                       |
+| `STATE_FILE`       | `".vkus_cli_state.json"`    | Файл состояния                                |
+| `LOG_DIR`          | `Path("logs/cli")`          | Корневая папка логов                          |
+| `DEFAULT_SKU`      | `"701"`                     | Товар по умолчанию для тестов (Кофе Espresso) |
+| `WEBHOOK_PORT`     | `8080`                      | Порт webhook-сервера                          |
+| `WEBHOOK_TIMEOUT`  | `300`                       | Таймаут ожидания webhook (секунды)            |
+| `MENU_CONTEXTS`    | `{"1":"delivery",...}`      | Маппинг номеров меню → названия контекстов    |
 
 ### 5.2 State-файл `.vkus_cli_state.json`
 
@@ -453,10 +453,10 @@ async def _qa_test_name(self, st: dict[str, Any]) -> str
 
 ### 5.3 Переменные окружения
 
-| Переменная | Описание |
-|------------|----------|
-| `VKUS_ADMIN_SECRET` | Admin secret (приоритет над state) |
-| `VKUS_API_URL` | Base URL (только если не передан через `--base-url`) |
+| Переменная          | Описание                                             |
+| ------------------- | ---------------------------------------------------- |
+| `VKUS_ADMIN_SECRET` | Admin secret (приоритет над state)                   |
+| `VKUS_API_URL`      | Base URL (только если не передан через `--base-url`) |
 
 ---
 
@@ -464,11 +464,11 @@ async def _qa_test_name(self, st: dict[str, Any]) -> str
 
 ### 6.1 Консольные хелперы
 
-| Функция | Описание |
-|---------|----------|
-| `cprint(*args)` | Обёртка над `rich.Console.print()` с fallback |
-| `make_table(title, columns, rows)` | Таблица. `columns = [(header, justify), ...]` |
-| `make_panel(title, lines)` | Панель с рамкой. `lines = ["строка1", "строка2"]` |
+| Функция                            | Описание                                          |
+| ---------------------------------- | ------------------------------------------------- |
+| `cprint(*args)`                    | Обёртка над `rich.Console.print()` с fallback     |
+| `make_table(title, columns, rows)` | Таблица. `columns = [(header, justify), ...]`     |
+| `make_panel(title, lines)`         | Панель с рамкой. `lines = ["строка1", "строка2"]` |
 
 Все три работают и без `rich` — просто выводят plain text.
 
@@ -587,43 +587,43 @@ async def _qa_test_name(self, st: dict[str, Any]) -> str
 
 ## 10. Полный список API-эндпоинтов, используемых CLI
 
-| Метод | Путь | Auth | Используется в |
-|-------|------|------|----------------|
-| GET | `/health` | none | QA |
-| GET | `/bootstrap` | none | QA |
-| POST | `/guest/session/bootstrap` | none | ensure_guest, QA |
-| POST | `/geo/city-suggest` | none | delivery, QA |
-| POST | `/checkout/delivery-options` | none | delivery, QA |
-| GET | `/delivery/magnit/pickup-points` | none | delivery, QA |
-| GET | `/delivery/5post/pickup-points` | none | delivery, QA |
-| GET | `/delivery/magnit/cities` | none | delivery |
-| POST | `/checkout/estimate-delivery` | none | delivery, QA |
-| POST | `/checkout/quote` | none | QA |
-| PUT | `/guest/cart/items` | guest | QA |
-| POST | `/guest/checkout/create-order` | guest | orders, payment, QA |
-| GET | `/guest/orders/{num}/status` | guest | orders, payment, QA |
-| GET | `/guest/orders/{num}` | guest | orders |
-| POST | `/guest/orders/{num}/cancel` | guest | orders |
-| GET | `/me/orders` | user | orders |
-| POST | `/guest/orders/{num}/payments/yookassa/create` | guest | payment |
-| POST | `/auth/register` | none | auth, QA |
-| POST | `/auth/login` | none | auth |
-| GET | `/me` | user | auth, QA |
-| POST | `/auth/logout` | none | auth |
-| GET | `/admin/orders/{num}` | admin | admin |
-| GET | `/admin/orders` | admin | admin (list) |
-| POST | `/admin/orders/{num}/set-status` | admin | admin |
-| DELETE | `/admin/orders/{num}` | admin | admin |
-| GET | `/admin/clients` | admin | admin (list) |
-| GET | `/admin/clients/{id}` | admin | admin |
-| POST | `/admin/clients/{id}/reset-password` | admin | admin |
-| DELETE | `/admin/clients/{id}` | admin | admin |
-| GET | `/admin/pickup-points/cache-status` | admin | admin |
-| POST | `/admin/jobs/sync-5post-points` | admin | admin |
-| POST | `/admin/jobs/sync-magnit-points` | admin | admin |
-| GET | `/admin/provider-events` | admin | admin |
-| GET | `/orders/track/{token}` | none | public tracking |
-| POST | `/orders/{token}/confirm` | none | COD confirm |
-| POST | `/orders/{token}/check-payment` | none | payment check |
-| POST | `/orders/{token}/cancel` | none | public cancel |
-| POST | `/auth/check-email` | none | email exists check |
+| Метод  | Путь                                           | Auth  | Используется в      |
+| ------ | ---------------------------------------------- | ----- | ------------------- |
+| GET    | `/health`                                      | none  | QA                  |
+| GET    | `/bootstrap`                                   | none  | QA                  |
+| POST   | `/guest/session/bootstrap`                     | none  | ensure_guest, QA    |
+| POST   | `/geo/city-suggest`                            | none  | delivery, QA        |
+| POST   | `/checkout/delivery-options`                   | none  | delivery, QA        |
+| GET    | `/delivery/magnit/pickup-points`               | none  | delivery, QA        |
+| GET    | `/delivery/5post/pickup-points`                | none  | delivery, QA        |
+| GET    | `/delivery/magnit/cities`                      | none  | delivery            |
+| POST   | `/checkout/estimate-delivery`                  | none  | delivery, QA        |
+| POST   | `/checkout/quote`                              | none  | QA                  |
+| PUT    | `/guest/cart/items`                            | guest | QA                  |
+| POST   | `/guest/checkout/create-order`                 | guest | orders, payment, QA |
+| GET    | `/guest/orders/{num}/status`                   | guest | orders, payment, QA |
+| GET    | `/guest/orders/{num}`                          | guest | orders              |
+| POST   | `/guest/orders/{num}/cancel`                   | guest | orders              |
+| GET    | `/me/orders`                                   | user  | orders              |
+| POST   | `/guest/orders/{num}/payments/yookassa/create` | guest | payment             |
+| POST   | `/auth/register`                               | none  | auth, QA            |
+| POST   | `/auth/login`                                  | none  | auth                |
+| GET    | `/me`                                          | user  | auth, QA            |
+| POST   | `/auth/logout`                                 | none  | auth                |
+| GET    | `/admin/orders/{num}`                          | admin | admin               |
+| GET    | `/admin/orders`                                | admin | admin (list)        |
+| POST   | `/admin/orders/{num}/set-status`               | admin | admin               |
+| DELETE | `/admin/orders/{num}`                          | admin | admin               |
+| GET    | `/admin/clients`                               | admin | admin (list)        |
+| GET    | `/admin/clients/{id}`                          | admin | admin               |
+| POST   | `/admin/clients/{id}/reset-password`           | admin | admin               |
+| DELETE | `/admin/clients/{id}`                          | admin | admin               |
+| GET    | `/admin/pickup-points/cache-status`            | admin | admin               |
+| POST   | `/admin/jobs/sync-5post-points`                | admin | admin               |
+| POST   | `/admin/jobs/sync-magnit-points`               | admin | admin               |
+| GET    | `/admin/provider-events`                       | admin | admin               |
+| GET    | `/orders/track/{token}`                        | none  | public tracking     |
+| POST   | `/orders/{token}/confirm`                      | none  | COD confirm         |
+| POST   | `/orders/{token}/check-payment`                | none  | payment check       |
+| POST   | `/orders/{token}/cancel`                       | none  | public cancel       |
+| POST   | `/auth/check-email`                            | none  | email exists check  |

@@ -751,3 +751,57 @@ async def delete_client(
         "data": {"message": f"Client {user.email} deleted"},
         "request_id": request_id,
     }
+
+
+# ── Test email ──
+
+class TestEmailRequest(BaseModel):
+    to: str
+
+
+@router.post("/test-email")
+async def send_test_email(body: TestEmailRequest, request_id: RequestId):
+    """Send a test email to verify SMTP configuration."""
+    import json
+    import time
+    import uuid
+
+    from packages.core.redis import get_redis
+
+    to = body.to
+    subject = f"[VKUS Online] Тестовое письмо"
+    html_body = (
+        '<h2 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#333;">Тестовое письмо</h2>'
+        f'<p style="margin:0 0 12px;color:#555;font-size:15px;">Это тестовое письмо от <strong>{settings.shop_name}</strong>.</p>'
+        f'<p style="margin:0 0 8px;color:#555;font-size:14px;">SMTP: <code>{settings.smtp_host}:{settings.smtp_port}</code></p>'
+        f'<p style="margin:0 0 8px;color:#555;font-size:14px;">От: <code>{settings.smtp_from_email}</code></p>'
+        f'<p style="margin:0 0 8px;color:#555;font-size:14px;">Кому: <code>{to}</code></p>'
+        f'<p style="margin:0;color:#888;font-size:13px;">Отправлено: {datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")}</p>'
+    )
+
+    redis = await get_redis()
+    msg_id = str(uuid.uuid4())
+    payload = json.dumps({
+        "msg_id": msg_id,
+        "to": to,
+        "subject": subject,
+        "body": html_body,
+        "from_addr": settings.smtp_from_email,
+        "_retries": 0,
+        "_created_at": time.time(),
+    })
+    await redis.hset("email:msgs", msg_id, payload)
+    await redis.zadd("email:pending", {msg_id: time.time()})
+
+    logger.info("test_email_queued", to=to, msg_id=msg_id)
+
+    return {
+        "ok": True,
+        "data": {
+            "message": f"Test email queued to {to}",
+            "msg_id": msg_id,
+            "from": settings.smtp_from_email,
+            "smtp": f"{settings.smtp_host}:{settings.smtp_port}",
+        },
+        "request_id": request_id,
+    }

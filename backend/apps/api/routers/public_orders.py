@@ -143,7 +143,7 @@ async def confirm_cod_order(token: str, db: DbSession):
         )
 
     order = await checkout_service.update_order_status(
-        db, order, OrderStatus.CONFIRMED
+        db, order, OrderStatus.CONFIRMED_BY_CLIENT
     )
     await db.commit()
 

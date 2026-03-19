@@ -9,9 +9,9 @@
 <p style="margin:0 0 20px;color:#333;">Здравствуйте, <strong>#ORDER_USER#</strong>!</p>
 <p style="margin:0 0 24px;color:#555;">Ваш заказ доставлен в пункт выдачи и ожидает вас. Пожалуйста, заберите его в ближайшее время.</p>
 
-#PVZDETAILS#
+#PVZDETAILS_HTML#
 
-#ORDER_LIST_HTML#
+#ORDER_LIST_WITHOUT_PRICE_HTML#
 
 <table cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" width="100%">
 <tr><td align="center">

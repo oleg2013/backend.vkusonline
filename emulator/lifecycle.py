@@ -144,3 +144,35 @@ def magnit_branch_return(current_status: str) -> str | None:
     if current_status == "ACCEPTED_AT_POINT":
         return MAGNIT_RETURN_PATH[0]
     return None
+
+
+# ── Available transitions ────────────────────────────────────────────
+
+def fivepost_available_transitions(current: FivePostState) -> list[dict]:
+    """Return list of available transitions from current state."""
+    result = []
+    ns = fivepost_next_step(current)
+    if ns:
+        result.append({"action": "next", "label": f"{ns.status}/{ns.execution_status} ({ns.mile_type or '-'})"})
+    branch = fivepost_branch_unclaimed(current)
+    if branch:
+        result.append({"action": "unclaimed", "label": f"{branch.status}/{branch.execution_status} (UNCLAIMED)"})
+    if current.status not in FIVEPOST_TERMINAL:
+        result.append({"action": "cancel", "label": "CANCELLED/CANCELLED"})
+    if current.status == "NEW":
+        result.append({"action": "reject", "label": "REJECTED/REJECTED"})
+    return result
+
+
+def magnit_available_transitions(current_status: str) -> list[dict]:
+    """Return list of available transitions from current status."""
+    result = []
+    ns = magnit_next_step(current_status)
+    if ns:
+        result.append({"action": "next", "label": ns})
+    branch = magnit_branch_return(current_status)
+    if branch:
+        result.append({"action": "return", "label": branch + " (RETURN)"})
+    if current_status not in MAGNIT_TERMINAL and current_status in ("NEW", "CREATED"):
+        result.append({"action": "cancel", "label": "CANCELED_BY_PROVIDER"})
+    return result

@@ -3,23 +3,24 @@
 @@TO: #SALE_EMAIL#
 @@SUBJECT: Оплачен заказ ##ORDER_ID# (предоплата)
 @@BODY:
-<h2 style="margin:0 0 16px;font-size:18px;font-weight:600;color:#4CAF50;">Получена оплата</h2>
-<p style="margin:0 0 20px;color:#555;font-size:14px;">Предоплаченный заказ оплачен и подтверждён. Можно отгружать.</p>
+<h2 style="margin:0 0 20px;font-size:24px;font-weight:700;color:#16A34A;font-family:Arial,Helvetica,sans-serif;">Получена оплата</h2>
 
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 20px;">
-<tr><td style="padding:6px 0;font-size:13px;color:#888;width:140px;">Заказ</td><td style="padding:6px 0;font-size:14px;color:#333;font-weight:600;">#ORDER_ID#</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Дата</td><td style="padding:6px 0;font-size:14px;color:#333;">#ORDER_DATE#</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Тип оплаты</td><td style="padding:6px 0;font-size:14px;color:#4CAF50;font-weight:500;">Предоплата картой</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Клиент</td><td style="padding:6px 0;font-size:14px;color:#333;">#ORDER_USER#</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Email</td><td style="padding:6px 0;font-size:14px;color:#333;">#EMAIL#</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Телефон</td><td style="padding:6px 0;font-size:14px;color:#333;">#PHONE#</td></tr>
-<tr><td style="padding:6px 0;font-size:13px;color:#888;">Сумма</td><td style="padding:6px 0;font-size:16px;color:#C8860A;font-weight:600;">#PRICE#</td></tr>
+<p style="margin:0 0 24px;color:#1F2937;font-size:16px;line-height:1.5;font-family:Arial,Helvetica,sans-serif;">Предоплаченный заказ оплачен и подтверждён. Можно отгружать.</p>
+
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:0 0 28px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;">
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;width:170px;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Заказ</td><td style="padding:12px 16px;font-size:18px;color:#111827;font-weight:700;border-bottom:1px solid #E5E7EB;">#ORDER_ID#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Дата оформления</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#ORDER_DATE#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Тип оплаты</td><td style="padding:12px 16px;font-size:16px;color:#16A34A;font-weight:600;border-bottom:1px solid #E5E7EB;">Предоплата картой</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Клиент</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#ORDER_USER#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Email</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#EMAIL#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;border-bottom:1px solid #E5E7EB;background:#F9FAFB;">Телефон</td><td style="padding:12px 16px;font-size:16px;color:#111827;border-bottom:1px solid #E5E7EB;">#PHONE#</td></tr>
+<tr><td style="padding:12px 16px;font-size:15px;color:#6B7280;background:#F9FAFB;">Сумма</td><td style="padding:12px 16px;font-size:18px;color:#16A34A;font-weight:700;">#PRICE#</td></tr>
 </table>
 
 #ORDER_LIST_HTML#
 
-<table cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;" width="100%">
+<table cellpadding="0" cellspacing="0" border="0" style="margin:32px 0;" width="100%">
 <tr><td align="center">
-<a href="https://#SERVER_NAME#/#/orders/#UNIQUE_ORDER_ID#" style="display:inline-block;padding:12px 32px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:14px;">Открыть заказ</a>
+<a href="https://#SERVER_NAME#/#/orders/#UNIQUE_ORDER_ID#" style="display:inline-block;padding:16px 40px;background-color:#16A34A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:700;font-family:Arial,Helvetica,sans-serif;">Открыть заказ</a>
 </td></tr>
 </table>

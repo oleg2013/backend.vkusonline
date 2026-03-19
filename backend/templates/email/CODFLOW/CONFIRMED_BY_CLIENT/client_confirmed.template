@@ -1,13 +1,13 @@
 @@ENABLED: true
 @@FROM: #SYS_SHOP_EMAIL#
 @@TO: #EMAIL#
-@@SUBJECT: #SHOP_NAME# — Заказ ##ORDER_ID# подтверждён магазином
+@@SUBJECT: #SHOP_NAME# — Заказ ##ORDER_ID# принят
 @@BODY:
-<h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Заказ подтверждён магазином</h2>
+<h2 style="margin:0 0 8px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Заказ принят</h2>
 <p style="margin:0 0 24px;color:#888;font-size:14px;">Заказ #ORDER_ID# от #ORDER_DATE#</p>
 
 <p style="margin:0 0 20px;color:#333;">Здравствуйте, <strong>#ORDER_USER#</strong>!</p>
-<p style="margin:0 0 24px;color:#555;">Ваш заказ подтверждён магазином и готовится к отправке. Мы сообщим вам, когда он будет отправлен.</p>
+<p style="margin:0 0 24px;color:#555;">Спасибо за подтверждение заказа. Ваш заказ передан в обработку магазином. Мы сообщим вам, когда он будет подтверждён и отправлен.</p>
 
 <div style="margin:0 0 28px;padding:20px 24px;background-color:#FAF6F0;border-radius:12px;border-left:4px solid #C8860A;">
 <p style="margin:0 0 4px;font-size:13px;color:#888;">Сумма к оплате при получении</p>

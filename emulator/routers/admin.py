@@ -34,8 +34,10 @@ from lifecycle import (
     MAGNIT_HAPPY_PATH,
     MAGNIT_RETURN_PATH,
     FivePostState,
+    fivepost_available_transitions,
     fivepost_branch_unclaimed,
     fivepost_next_step,
+    magnit_available_transitions,
     magnit_branch_return,
     magnit_next_step,
 )
@@ -127,6 +129,9 @@ async def fivepost_detail(db_id: int, db: AsyncSession = Depends(get_db)):
         "created_at": _iso(order.created_at),
         "updated_at": _iso(order.updated_at),
         "history": history,
+        "available_transitions": fivepost_available_transitions(
+            FivePostState(order.status, order.execution_status, order.mile_type)
+        ),
     }
 
 
@@ -339,6 +344,7 @@ async def magnit_detail(db_id: int, db: AsyncSession = Depends(get_db)):
         "created_at": _iso(order.created_at),
         "updated_at": _iso(order.updated_at),
         "history": history,
+        "available_transitions": magnit_available_transitions(order.status),
     }
 
 

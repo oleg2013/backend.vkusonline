@@ -13,6 +13,7 @@ class OrderStatus(StrEnum):
     PENDING_PAYMENT = "pending_payment"
     PAID = "paid"
     PENDING_CONFIRMATION = "pending_confirmation"
+    CONFIRMED_BY_CLIENT = "confirmed_by_client"
     CONFIRMED = "confirmed"
     SHIPPED = "shipped"
     READY_FOR_PICKUP = "ready_for_pickup"

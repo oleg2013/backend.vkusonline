@@ -56,24 +56,24 @@ backend/
 
 ## Key Commands
 
-| Command | Description |
-|---------|-------------|
-| `make dev` | Start dev server with hot reload |
-| `make test` | Run test suite |
-| `make qa` | Run linter + formatter check + tests |
-| `make migrate` | Apply database migrations |
-| `make up` | Start all services via Docker Compose |
-| `make down` | Stop all services |
-| `make seed` | Seed catalog with sample products |
+| Command        | Description                           |
+| -------------- | ------------------------------------- |
+| `make dev`     | Start dev server with hot reload      |
+| `make test`    | Run test suite                        |
+| `make qa`      | Run linter + formatter check + tests  |
+| `make migrate` | Apply database migrations             |
+| `make up`      | Start all services via Docker Compose |
+| `make down`    | Stop all services                     |
+| `make seed`    | Seed catalog with sample products     |
 
 ## API Zones
 
-| Zone | Auth | Description |
-|------|------|-------------|
-| Public | None | Catalog, health, bootstrap, geo, delivery discovery |
-| Guest-bound | X-Guest-Session-ID | Cart, checkout, order management |
-| Customer | JWT Bearer | Profile, addresses, order history, discounts |
-| Admin | Admin token | Order management, job triggers, provider events |
+| Zone        | Auth               | Description                                         |
+| ----------- | ------------------ | --------------------------------------------------- |
+| Public      | None               | Catalog, health, bootstrap, geo, delivery discovery |
+| Guest-bound | X-Guest-Session-ID | Cart, checkout, order management                    |
+| Customer    | JWT Bearer         | Profile, addresses, order history, discounts        |
+| Admin       | Admin token        | Order management, job triggers, provider events     |
 
 ## Documentation
 

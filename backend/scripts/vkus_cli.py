@@ -510,6 +510,20 @@ class CLIApp:
         parts.append(f"{elapsed}ms")
         cprint(f"  [dim]{' | '.join(parts)}[/dim]" if HAS_RICH else f"  ({' | '.join(parts)})")
 
+    @staticmethod
+    def show_breadcrumb(parts: list[str]) -> None:
+        """Print a navigation breadcrumb path at the top of a screen."""
+        if HAS_RICH:
+            styled = []
+            for i, part in enumerate(parts):
+                if i == len(parts) - 1:
+                    styled.append(f"[bold cyan]{part}[/bold cyan]")
+                else:
+                    styled.append(f"[yellow]{part}[/yellow]")
+            cprint(f"\n  {' > '.join(styled)}")
+        else:
+            cprint(f"\n  {' > '.join(parts)}")
+
     # ── MAIN LOOP ──
 
     async def run(self) -> None:
@@ -583,6 +597,7 @@ class CLIApp:
 
     async def menu_delivery(self) -> None:
         while True:
+            self.show_breadcrumb(["Доставка"])
             choice = self.show_menu(
                 "Доставка",
                 [
@@ -611,6 +626,7 @@ class CLIApp:
                 await self._delivery_flow()
 
     async def _delivery_suggest(self) -> list[dict[str, Any]]:
+        self.show_breadcrumb(["Доставка", "Автокомплит города"])
         query = self.ask("Введите запрос", "Моск")
         data = await self.api.call("POST", "/geo/city-suggest", {"query": query})
         suggestions = data.get("suggestions", [])
@@ -633,6 +649,7 @@ class CLIApp:
         return suggestions
 
     async def _delivery_options(self, city: str | None = None, cart_items: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        self.show_breadcrumb(["Доставка", "Варианты доставки"])
         if not city:
             city = self.ask("Город", "Москва")
         if not cart_items:
@@ -666,6 +683,7 @@ class CLIApp:
         return data
 
     async def _delivery_points(self, provider: str | None = None, city: str | None = None, limit: int | None = None) -> list[dict[str, Any]]:
+        self.show_breadcrumb(["Доставка", "Список ПВЗ"])
         if not provider:
             provider = self.ask("Провайдер (magnit/5post)", "magnit")
         if not city:
@@ -741,6 +759,7 @@ class CLIApp:
         return points
 
     async def _delivery_estimate(self, provider: str | None = None, point_id: str | None = None, cart_items: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+        self.show_breadcrumb(["Доставка", "Расчёт стоимости"])
         if not provider:
             provider = self.ask("Провайдер", "magnit")
         if not point_id:
@@ -766,6 +785,7 @@ class CLIApp:
         return data
 
     async def _delivery_cities(self) -> list[dict[str, Any]]:
+        self.show_breadcrumb(["Доставка", "Города Магнит"])
         data = await self.api.call("GET", "/delivery/magnit/cities")
         cities = data if isinstance(data, list) else []
         rows = [[str(i), c.get("city", ""), str(c.get("pickup_points_count", 0))] for i, c in enumerate(cities[:50], 1)]
@@ -775,6 +795,7 @@ class CLIApp:
 
     async def _delivery_flow(self) -> dict[str, Any]:
         """Full website scenario: city → provider → PVZ → estimate."""
+        self.show_breadcrumb(["Доставка", "Полный сценарий"])
         cprint("\n  === Полный сценарий доставки (как на сайте) ===\n")
 
         # Step 1: City
@@ -844,6 +865,7 @@ class CLIApp:
 
     async def menu_orders(self) -> None:
         while True:
+            self.show_breadcrumb(["Заказы"])
             choice = self.show_menu(
                 "Заказы",
                 [
@@ -870,6 +892,7 @@ class CLIApp:
 
     async def _order_create(self, payment_method: str | None = None) -> dict[str, Any] | None:
         """Full checkout: guest session → delivery flow → customer info → create order."""
+        self.show_breadcrumb(["Заказы", "Создание заказа"])
         cprint("\n  === Создание заказа (полный checkout) ===\n")
 
         # Ensure guest
@@ -945,6 +968,7 @@ class CLIApp:
         return data
 
     async def _order_status(self) -> None:
+        self.show_breadcrumb(["Заказы", "Статус заказа"])
         order = self.ask("Номер заказа", self.state.get("last_order", ""))
         if not order:
             return
@@ -957,6 +981,7 @@ class CLIApp:
         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
     async def _order_detail(self) -> None:
+        self.show_breadcrumb(["Заказы", "Детали заказа"])
         order = self.ask("Номер заказа", self.state.get("last_order", ""))
         if not order:
             return
@@ -984,6 +1009,7 @@ class CLIApp:
         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
     async def _order_cancel(self) -> None:
+        self.show_breadcrumb(["Заказы", "Отмена заказа"])
         order = self.ask("Номер заказа", self.state.get("last_order", ""))
         if not order:
             return
@@ -995,6 +1021,7 @@ class CLIApp:
         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
     async def _order_list(self) -> None:
+        self.show_breadcrumb(["Заказы", "Список заказов"])
         if not self.api.access_token:
             cprint("  Нужна авторизация! Перейдите в меню 4 → Логин.")
             return
@@ -1021,6 +1048,7 @@ class CLIApp:
 
     async def menu_payment(self) -> None:
         while True:
+            self.show_breadcrumb(["Оплата"])
             choice = self.show_menu(
                 "Оплата",
                 [
@@ -1040,6 +1068,7 @@ class CLIApp:
                 await self._order_status()
 
     async def _payment_create(self, order: str | None = None) -> dict[str, Any] | None:
+        self.show_breadcrumb(["Оплата", "Создание платежа"])
         if not order:
             order = self.ask("Номер заказа", self.state.get("last_order", ""))
         if not order:
@@ -1066,6 +1095,7 @@ class CLIApp:
         return data
 
     async def _payment_full_test(self) -> None:
+        self.show_breadcrumb(["Оплата", "Полный тест оплаты"])
         cprint("\n  === Полный тест оплаты (E2E) ===\n")
 
         # Step 1: Create order with card payment
@@ -1114,6 +1144,7 @@ class CLIApp:
 
     async def menu_auth(self) -> None:
         while True:
+            self.show_breadcrumb(["Авторизация"])
             status = f"user: {self.api.access_token[:20]}..." if self.api.access_token else "не авторизован"
             choice = self.show_menu(
                 f"Авторизация ({status})",
@@ -1137,6 +1168,7 @@ class CLIApp:
                 await self._auth_logout()
 
     async def _auth_register(self, email: str = "", password: str = "", first_name: str = "", last_name: str = "") -> dict[str, Any]:
+        self.show_breadcrumb(["Авторизация", "Регистрация"])
         if not email:
             email = self.ask("Email")
         if not password:
@@ -1160,6 +1192,7 @@ class CLIApp:
         return data
 
     async def _auth_login(self) -> dict[str, Any]:
+        self.show_breadcrumb(["Авторизация", "Вход"])
         email = self.ask("Email")
         password = self.ask("Пароль")
         data = await self.api.call("POST", "/auth/login", {"email": email, "password": password})
@@ -1171,6 +1204,7 @@ class CLIApp:
         return data
 
     async def _auth_profile(self) -> None:
+        self.show_breadcrumb(["Авторизация", "Профиль"])
         if not self.api.access_token:
             cprint("  Нужна авторизация!")
             return
@@ -1185,6 +1219,7 @@ class CLIApp:
         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
     async def _auth_logout(self) -> None:
+        self.show_breadcrumb(["Авторизация", "Выход"])
         if not self.api.refresh_token:
             cprint("  Нет активной сессии.")
             return
@@ -1208,6 +1243,7 @@ class CLIApp:
                 self._save()
 
         while True:
+            self.show_breadcrumb(["Админ"])
             choice = self.show_menu(
                 "Администрирование",
                 [
@@ -1218,6 +1254,7 @@ class CLIApp:
                     "5. События провайдеров",
                     "6. Список заказов",
                     "7. Управление клиентами",
+                    "8. Тест почты",
                     "0. Назад",
                 ],
             )
@@ -1251,6 +1288,24 @@ class CLIApp:
                 await self.admin_orders_list()
             elif choice == "7":
                 await self.admin_clients_list()
+            elif choice == "8":
+                await self.admin_test_email()
+
+    # ── ADMIN: TEST EMAIL ──
+
+    async def admin_test_email(self) -> None:
+        """Send a test email via admin API."""
+        self.show_breadcrumb(["Админ", "Тест почты"])
+        to = self.ask("Email получателя")
+        if not to:
+            return
+        data = await self.api.call("POST", "/admin/test-email", {"to": to}, auth="admin")
+        if data:
+            cprint(f"  [green]✓[/green] {data.get('message', 'Queued')}" if HAS_RICH
+                   else f"  OK {data.get('message', 'Queued')}")
+            cprint(f"  From: {data.get('from', '?')}")
+            cprint(f"  SMTP: {data.get('smtp', '?')}")
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
     # ── ADMIN: ORDERS ──
 
@@ -1261,6 +1316,8 @@ class CLIApp:
         status_filter: str | None = None
 
         while True:
+            self.show_breadcrumb(["Админ", "Заказы"])
+
             params: dict[str, Any] = {"page": page, "per_page": per_page}
             if status_filter:
                 params["status"] = status_filter
@@ -1281,8 +1338,6 @@ class CLIApp:
                 items_count = len(o.get("items", [])) if isinstance(o.get("items"), list) else o.get("items_count", "?")
                 total_sum = o.get("total", "")
                 created = (o.get("created_at", "") or "")[:16]
-                token = o.get("public_token", "") or ""
-                token_short = f"…{token[-12:]}" if len(token) > 12 else token
                 provider = o.get("delivery_provider", "")
                 provider_label = {"5post": "5Post", "magnit": "Магнит"}.get(provider, provider)
                 rows.append([
@@ -1291,7 +1346,6 @@ class CLIApp:
                     o.get("order_type", o.get("type", "?")),
                     o.get("status_label", o.get("status", "")),
                     provider_label,
-                    token_short,
                     o.get("customer_name", ""),
                     o.get("customer_email", ""),
                     str(total_sum),
@@ -1302,18 +1356,20 @@ class CLIApp:
                 f"Заказы — стр. {page}/{total_pages} (всего {total}{filter_label})",
                 [
                     ("#", "right"), ("Номер", "left"), ("Тип", "left"), ("Статус", "left"),
-                    ("Доставка", "left"), ("Token", "left"), ("Клиент", "left"), ("Email", "left"),
+                    ("Доставка", "left"), ("Клиент", "left"), ("Email", "left"),
                     ("Сумма", "right"), ("Позиций", "right"), ("Дата", "left"),
                 ],
                 rows,
             )
             self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
-            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]F[/yellow]ilter  [yellow][номер][/yellow]=детали  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  F-ilter  [номер]=детали  0=назад")
+            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]F[/yellow]ilter  [yellow]R[/yellow]efresh  [yellow][номер][/yellow]=детали  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  F-ilter  R-efresh  [номер]=детали  0=назад")
             choice = self.ask("Действие", "0")
 
             if choice in ("0", "q", ""):
                 break
+            elif choice == "r":
+                continue  # refresh
             elif choice == "n":
                 if page < total_pages:
                     page += 1
@@ -1321,7 +1377,7 @@ class CLIApp:
                 if page > 1:
                     page -= 1
             elif choice == "f":
-                new_filter = self.ask("Статус (pending_payment/paid/pending_confirmation/confirmed/shipped/ready_for_pickup/delivered/cancelled, пусто=сброс)")
+                new_filter = self.ask("Статус (pending_payment/paid/pending_confirmation/confirmed_by_client/confirmed/shipped/ready_for_pickup/delivered/cancelled, пусто=сброс)")
                 status_filter = new_filter if new_filter else None
                 page = 1
             else:
@@ -1331,11 +1387,16 @@ class CLIApp:
                     if 1 <= idx <= len(orders):
                         order_data = orders[idx - 1]
                         await self._admin_order_detail_actions(order_data)
+                        # After returning from detail view, continue to refresh list
                 except ValueError:
                     pass
 
     async def _admin_order_detail_actions(self, order_summary: dict[str, Any]) -> None:
-        """Show admin order detail and action menu."""
+        """Show admin order detail and action menu.
+
+        Returns after user presses "0" or after a mutating action
+        (status change, cancel, delete) so the caller can refresh the list.
+        """
         order_number = order_summary.get("order_number", "")
         if not order_number:
             cprint("  Нет номера заказа.")
@@ -1347,6 +1408,8 @@ class CLIApp:
         except ApiError as e:
             cprint(f"\n  [bold red]Ошибка:[/bold red] {e}" if HAS_RICH else f"\n  ERROR: {e}")
             return
+
+        self.show_breadcrumb(["Админ", "Заказы", order_number])
 
         token = data.get('public_token', data.get('guest_order_token', ''))
         tracking_url = f"https://vkus.online/#/orders/{token}" if token else ""
@@ -1389,13 +1452,15 @@ class CLIApp:
                     "3. Удалить заказ",
                     "4. Создать отправление (Shipment)",
                     "5. Просмотреть отправление",
-                    "0. Назад",
+                    "0. Назад к списку",
                 ],
             )
             if choice in ("0", "q", ""):
-                break
+                return  # back to list (list loop will refresh)
             elif choice == "1":
-                await self._admin_order_set_status(order_number, data.get("status", ""), data.get("allowed_transitions"))
+                changed = await self._admin_order_set_status(order_number, data.get("status", ""), data.get("allowed_transitions"))
+                if changed:
+                    return  # back to list with refresh
             elif choice == "4":
                 await self._admin_create_shipment(order_number)
             elif choice == "5":
@@ -1409,7 +1474,7 @@ class CLIApp:
                         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
                     except ApiError as e:
                         cprint(f"  [bold red]Ошибка:[/bold red] {e}" if HAS_RICH else f"  ERROR: {e}")
-                break
+                return  # back to list with refresh
             elif choice == "3":
                 confirm = self.ask(f"УДАЛИТЬ заказ {order_number}? Это необратимо! (yes/no)", "no")
                 if confirm.lower() == "yes":
@@ -1419,14 +1484,17 @@ class CLIApp:
                         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
                     except ApiError as e:
                         cprint(f"  [bold red]Ошибка:[/bold red] {e}" if HAS_RICH else f"  ERROR: {e}")
-                break
+                return  # back to list with refresh
 
-    async def _admin_order_set_status(self, order_number: str, current_status: str, allowed_transitions: list[str] | None = None) -> None:
-        """Show allowed status transitions and let user pick a new status."""
+    async def _admin_order_set_status(self, order_number: str, current_status: str, allowed_transitions: list[str] | None = None) -> bool:
+        """Show allowed status transitions and let user pick a new status.
+
+        Returns True if the status was changed, False otherwise.
+        """
         allowed = allowed_transitions or []
         if not allowed:
             cprint(f"  Заказ в статусе '{current_status}' — переходы недоступны.")
-            return
+            return False
 
         cprint(f"  Текущий статус: {current_status}")
         cprint(f"  Доступные переходы:")
@@ -1445,14 +1513,16 @@ class CLIApp:
 
         if not new_status:
             cprint("  Отмена.")
-            return
+            return False
 
         try:
             result = await self.api.call("POST", f"/admin/orders/{order_number}/set-status", {"new_status": new_status}, auth="admin")
             cprint(f"  Статус заказа {order_number} изменён: {current_status} -> {result.get('status', new_status)}")
             self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+            return True
         except ApiError as e:
             cprint(f"  [bold red]Ошибка:[/bold red] {e}" if HAS_RICH else f"  ERROR: {e}")
+            return False
 
     async def _admin_create_shipment(self, order_number: str) -> None:
         """Create a shipment at the delivery provider for an order."""
@@ -1510,6 +1580,8 @@ class CLIApp:
         search_query: str | None = None
 
         while True:
+            self.show_breadcrumb(["Админ", "Клиенты"])
+
             params: dict[str, Any] = {"page": page, "per_page": per_page}
             if search_query:
                 params["search"] = search_query
@@ -1551,11 +1623,13 @@ class CLIApp:
             )
             self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
-            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]S[/yellow]earch  [yellow][номер][/yellow]=детали  [yellow]C[/yellow]reate  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  S-earch  [номер]=детали  C-reate  0=назад")
+            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]S[/yellow]earch  [yellow]R[/yellow]efresh  [yellow][номер][/yellow]=детали  [yellow]C[/yellow]reate  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  S-earch  R-efresh  [номер]=детали  C-reate  0=назад")
             choice = self.ask("Действие", "0")
 
             if choice in ("0", "q", ""):
                 break
+            elif choice == "r":
+                continue  # refresh
             elif choice == "n":
                 if page < total_pages:
                     page += 1
@@ -1574,16 +1648,23 @@ class CLIApp:
                     if 1 <= idx <= len(clients):
                         client_data = clients[idx - 1]
                         await self._admin_client_detail_actions(client_data)
+                        # After returning from detail view, continue to refresh list
                 except ValueError:
                     pass
 
     async def _admin_client_detail_actions(self, client_summary: dict[str, Any]) -> None:
-        """Show admin client detail and action menu."""
+        """Show admin client detail and action menu.
+
+        Returns after user presses "0" or after a mutating action
+        (delete) so the caller can refresh the list.
+        """
         client_id = client_summary.get("id", "")
         client_email = client_summary.get("email", "")
         if not client_id and not client_email:
             cprint("  Нет данных клиента.")
             return
+
+        self.show_breadcrumb(["Админ", "Клиенты", client_email])
 
         # Show client info from the summary (or re-fetch if endpoint exists)
         lines = [
@@ -1607,11 +1688,11 @@ class CLIApp:
                     "2. Сбросить пароль",
                     "3. Создать клиента",
                     "4. Удалить клиента",
-                    "0. Назад",
+                    "0. Назад к списку",
                 ],
             )
             if choice in ("0", "q", ""):
-                break
+                return  # back to list (list loop will refresh)
             elif choice == "1":
                 await self._admin_client_orders(client_id, client_email)
             elif choice == "2":
@@ -1627,13 +1708,15 @@ class CLIApp:
                         self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
                     except ApiError as e:
                         cprint(f"  [bold red]Ошибка:[/bold red] {e}" if HAS_RICH else f"  ERROR: {e}")
-                break
+                return  # back to list with refresh
 
     async def _admin_client_orders(self, client_id: str, client_email: str) -> None:
         """Show orders for a specific client."""
         page = 1
         per_page = 15
         while True:
+            self.show_breadcrumb(["Админ", "Клиенты", client_email, "Заказы"])
+
             params: dict[str, Any] = {"page": page, "per_page": per_page, "client_id": client_id}
             try:
                 data = await self.api.call("GET", "/admin/orders", params=params, auth="admin")
@@ -1661,10 +1744,12 @@ class CLIApp:
             )
             self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
-            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  0=назад")
+            cprint("  [yellow]N[/yellow]ext  [yellow]P[/yellow]rev  [yellow]R[/yellow]efresh  [yellow]0[/yellow]=назад" if HAS_RICH else "  N-ext  P-rev  R-efresh  0=назад")
             choice = self.ask("Действие", "0")
             if choice in ("0", "q", ""):
                 break
+            elif choice == "r":
+                continue  # refresh
             elif choice == "n":
                 if page < total_pages:
                     page += 1
@@ -1721,6 +1806,7 @@ class CLIApp:
 
     async def menu_settings(self) -> None:
         while True:
+            self.show_breadcrumb(["Настройки"])
             detail_str = "ВКЛ" if self.logger.detail_mode else "ВЫКЛ"
             choice = self.show_menu(
                 "Настройки",
@@ -2117,7 +2203,8 @@ class CLIApp:
         order_number = st.get("order_number", "")
         if not order_number:
             raise AssertionError("No test order available (create_order test must run first)")
-        # Set status to confirmed
+        # COD orders go through confirmed_by_client first, then confirmed
+        # If the order is in confirmed_by_client, advance to confirmed
         data = await self.api.call(
             "POST", f"/admin/orders/{order_number}/set-status",
             {"new_status": "confirmed"}, auth="admin",
@@ -2180,9 +2267,9 @@ class CLIApp:
         confirm_data = await self.api.call("POST", f"/orders/{token}/confirm")
 
         new_status = confirm_data.get("status", "")
-        if new_status != "confirmed":
-            raise AssertionError(f"Expected status 'confirmed', got '{new_status}'")
-        return f"{cod_order} -> confirmed"
+        if new_status != "confirmed_by_client":
+            raise AssertionError(f"Expected status 'confirmed_by_client', got '{new_status}'")
+        return f"{cod_order} -> confirmed_by_client"
 
     async def _qa_admin_list_clients(self, st: dict[str, Any]) -> str:
         """Admin: list clients — GET /admin/clients, check response."""

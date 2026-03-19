@@ -125,9 +125,14 @@
               │                               │
      → YooKassa оплата              → POST /orders/{token}/confirm
               │                               │
-           PAID                          CONFIRMED
+           PAID                      CONFIRMED_BY_CLIENT
+              │                        (клиент подтвердил,
+         CONFIRMED                    ждёт подтверждения магазина)
               │                               │
-         CONFIRMED ←──── admin ────→ SHIPPED → READY_FOR_PICKUP → DELIVERED
+              │                          CONFIRMED
+              │                          (магазин подтвердил)
+              │                               │
+              └──────── admin ────────→ SHIPPED → READY_FOR_PICKUP → DELIVERED
                                                     │
                                           (или CLIENT_DONT_PICKUP
                                            → RETURNED_TO_SUPPLIER)
@@ -164,42 +169,42 @@ aiosmtplib → smtp.yandex.ru:587 STARTTLS
 
 ## Роутеры API (14 шт)
 
-| Роутер | Назначение |
-|--------|-----------|
-| /health | Healthcheck |
-| /auth | Регистрация, логин, refresh, logout, check-email |
-| /guest | Гостевые сессии |
-| /catalog | Каталог товаров |
-| /geo | Подсказки адресов (DaData) |
-| /cart | Корзина |
-| /checkout | Создание заказа, расчёт доставки/оплаты |
-| /orders | Заказы пользователя/гостя |
-| /payments | Создание платежа YooKassa |
-| /delivery_5post | ПВЗ и доставка 5Post |
-| /delivery_magnit | ПВЗ и доставка Magnit |
-| /me | Профиль авторизованного пользователя |
-| /public_orders | Публичный трекинг заказа (без авторизации, по токену) |
-| /webhooks | Вебхуки YooKassa и 5Post |
-| /admin | Админ: заказы, клиенты, ручной запуск задач |
+| Роутер           | Назначение                                            |
+|------------------|-------------------------------------------------------|
+| /health          | Healthcheck                                           |
+| /auth            | Регистрация, логин, refresh, logout, check-email      |
+| /guest           | Гостевые сессии                                       |
+| /catalog         | Каталог товаров                                       |
+| /geo             | Подсказки адресов (DaData)                            |
+| /cart            | Корзина                                               |
+| /checkout        | Создание заказа, расчёт доставки/оплаты               |
+| /orders          | Заказы пользователя/гостя                             |
+| /payments        | Создание платежа YooKassa                             |
+| /delivery_5post  | ПВЗ и доставка 5Post                                  |
+| /delivery_magnit | ПВЗ и доставка Magnit                                 |
+| /me              | Профиль авторизованного пользователя                  |
+| /public_orders   | Публичный трекинг заказа (без авторизации, по токену) |
+| /webhooks        | Вебхуки YooKassa и 5Post                              |
+| /admin           | Админ: заказы, клиенты, ручной запуск задач           |
 
 ## Таблицы БД (14 шт)
 
-| Таблица | Назначение |
-|---------|-----------|
-| users | Пользователи (email, phone, password_hash, plain_password) |
-| user_profiles | Расширенный профиль (имя, фамилия) |
-| refresh_tokens | JWT refresh-токены с ротацией |
-| products | Каталог: SKU, цена (копейки), вес, изображения, вкусы |
-| product_families | Группировка продуктов (опционально) |
-| orders | Заказы: статус, тип (PREPAID/CODFLOW), клиент, доставка, итого |
-| order_items | Позиции заказа |
-| order_events | Аудит-лог смены статусов |
-| payments | Платежи, привязка к заказу |
-| payment_events | Аудит-лог платежей |
-| pickup_point_cache | Кеш ПВЗ (5Post, Magnit) |
-| guest_sessions | Гостевые сессии (TTL 180д) |
-| idempotency_records | Дедупликация запросов |
-| provider_webhook_events | Сырые вебхуки для отладки |
+| Таблица                 | Назначение                                                     |
+|-------------------------|----------------------------------------------------------------|
+| users                   | Пользователи (email, phone, password_hash, plain_password)     |
+| user_profiles           | Расширенный профиль (имя, фамилия)                             |
+| refresh_tokens          | JWT refresh-токены с ротацией                                  |
+| products                | Каталог: SKU, цена (копейки), вес, изображения, вкусы          |
+| product_families        | Группировка продуктов (опционально)                            |
+| orders                  | Заказы: статус, тип (PREPAID/CODFLOW), клиент, доставка, итого |
+| order_items             | Позиции заказа                                                 |
+| order_events            | Аудит-лог смены статусов                                       |
+| payments                | Платежи, привязка к заказу                                     |
+| payment_events          | Аудит-лог платежей                                             |
+| pickup_point_cache      | Кеш ПВЗ (5Post, Magnit)                                        |
+| guest_sessions          | Гостевые сессии (TTL 180д)                                     |
+| idempotency_records     | Дедупликация запросов                                          |
+| provider_webhook_events | Сырые вебхуки для отладки                                      |
 
 ## Система логирования
 
@@ -248,28 +253,28 @@ logs/
 
 ## Фоновые задачи Worker (9 шт)
 
-| Задача | Интервал | Назначение |
-|--------|----------|-----------|
-| process_email_queue | 5 сек | Отправка email из Redis-очереди |
-| cancel_unpaid_orders | 10 мин | Автоотмена неоплаченных PREPAID (>30 мин) |
-| reconcile_pending_payments | 30 мин | Сверка статусов платежей с YooKassa |
-| poll_magnit_statuses | 2 часа | Опрос Magnit API по статусам доставок |
-| sync_5post_points | ежедневно 6:30 | Синхронизация ПВЗ 5Post |
-| sync_magnit_points | ежедневно 7:00 | Синхронизация ПВЗ Magnit |
-| cleanup_logs | ежедневно 2:00 | Ротация, архивация и очистка логов |
-| cleanup_guest_sessions | ежедневно 3:00 | Удаление просроченных гостевых сессий (>180д) |
-| cleanup_idempotency_keys | ежедневно 4:00 | Удаление просроченных ключей идемпотентности |
+| Задача                     | Интервал       | Назначение                                    |
+|----------------------------|----------------|-----------------------------------------------|
+| process_email_queue        | 5 сек          | Отправка email из Redis-очереди               |
+| cancel_unpaid_orders       | 10 мин         | Автоотмена неоплаченных PREPAID (>30 мин)     |
+| reconcile_pending_payments | 30 мин         | Сверка статусов платежей с YooKassa           |
+| poll_magnit_statuses       | 2 часа         | Опрос Magnit API по статусам доставок         |
+| sync_5post_points          | ежедневно 6:30 | Синхронизация ПВЗ 5Post                       |
+| sync_magnit_points         | ежедневно 7:00 | Синхронизация ПВЗ Magnit                      |
+| cleanup_logs               | ежедневно 2:00 | Ротация, архивация и очистка логов            |
+| cleanup_guest_sessions     | ежедневно 3:00 | Удаление просроченных гостевых сессий (>180д) |
+| cleanup_idempotency_keys   | ежедневно 4:00 | Удаление просроченных ключей идемпотентности  |
 
 ## Сводка
 
-| Компонент | Технология | Порт |
-|-----------|-----------|------|
-| API | FastAPI + Uvicorn | :8000 |
-| Worker | APScheduler (9 задач) | — |
-| БД | PostgreSQL (Docker) | :5432 |
-| Кеш/очереди | Redis | :6379 |
-| Прокси | Nginx | :443 |
-| SMTP | Yandex STARTTLS | :587 |
-| Платежи | YooKassa API | — |
-| Адреса | DaData API | — |
-| Доставка | 5Post + Magnit | — |
+| Компонент   | Технология            | Порт  |
+|-------------|-----------------------|-------|
+| API         | FastAPI + Uvicorn     | :8000 |
+| Worker      | APScheduler (9 задач) | —     |
+| БД          | PostgreSQL (Docker)   | :5432 |
+| Кеш/очереди | Redis                 | :6379 |
+| Прокси      | Nginx                 | :443  |
+| SMTP        | Yandex STARTTLS       | :587  |
+| Платежи     | YooKassa API          | —     |
+| Адреса      | DaData API            | —     |
+| Доставка    | 5Post + Magnit        | —     |

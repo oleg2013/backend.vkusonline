@@ -59,6 +59,20 @@ def _input(prompt: str = "> ") -> str:
         return ""
 
 
+def breadcrumb(parts: list[str]) -> None:
+    """Print a navigation breadcrumb path."""
+    if HAS_RICH:
+        styled = []
+        for i, part in enumerate(parts):
+            if i == len(parts) - 1:
+                styled.append(f"[bold cyan]{part}[/bold cyan]")
+            else:
+                styled.append(f"[yellow]{part}[/yellow]")
+        con.print(f"\n  {' > '.join(styled)}")
+    else:
+        print(f"\n  {' > '.join(parts)}")
+
+
 # ---------------------------------------------------------------------------
 #  HTTP client
 # ---------------------------------------------------------------------------
@@ -86,12 +100,15 @@ def show_table(title: str, headers: list[str], rows: list[list[str]]) -> None:
     if HAS_RICH:
         t = Table(title=title, show_lines=False, pad_edge=False)
         for h in headers:
-            t.add_column(h, style="cyan" if h in ("Status", "ExecStatus", "Статус") else None)
+            t.add_column(h, style="cyan" if h in ("Status", "ExecStatus") else None)
         for row in rows:
             t.add_row(*row)
         con.print(t)
     else:
         print(f"\n  {title}")
+        if not rows:
+            print("  (no data)")
+            return
         widths = [max(len(h), max((len(r[i]) for r in rows), default=0)) for i, h in enumerate(headers)]
         fmt = "  ".join(f"{{:<{w}}}" for w in widths)
         print("  " + fmt.format(*headers))
@@ -110,20 +127,23 @@ def show_detail(data: dict, title: str) -> None:
             lines.append(f"[cyan]{k}:[/cyan] {v}")
         con.print(Panel("\n".join(lines), title=title, border_style="green"))
     else:
-        print(f"\n  ── {title} ──")
+        print(f"\n  -- {title} --")
         for k, v in data.items():
             if k == "history":
                 continue
             print(f"  {k}: {v}")
 
 
-def show_lifecycle(data: dict, title: str) -> None:
-    if HAS_RICH:
-        con.rule(title)
+def show_result(data: Any) -> None:
+    if data and isinstance(data, dict) and data.get("ok"):
+        old = data.get("old", "")
+        new = data.get("new", "")
+        mile = data.get("mile_type") or ""
+        suffix = f" ({mile})" if mile else ""
+        con.print(f"  [green]OK[/green] {old} -> {new}{suffix}" if HAS_RICH
+                  else f"  OK {old} -> {new}{suffix}")
     else:
-        print(f"\n{'=' * 50}")
-        print(f"  {title}")
-        print(f"{'=' * 50}")
+        con.print(f"  {data}")
 
 
 # ---------------------------------------------------------------------------
@@ -132,13 +152,13 @@ def show_lifecycle(data: dict, title: str) -> None:
 
 def menu_5post() -> None:
     while True:
-        con.print("\n[bold green]=== 5Post ===[/bold green]" if HAS_RICH else "\n=== 5Post ===")
+        breadcrumb(["5Post"])
         print("  1. Список заказов")
         print("  2. Детали заказа")
         print("  3. Продвинуть статус (next)")
         print("  4. Продвинуть ВСЕ заказы")
         print("  5. Установить статус")
-        print("  6. Ветка «не забрали»")
+        print("  6. Ветка <<не забрали>>")
         print("  7. Lifecycle")
         print("  0. Назад")
 
@@ -147,89 +167,163 @@ def menu_5post() -> None:
             return
 
         if choice == "1":
-            data = api("GET", "/admin/5post/orders")
-            if not data or not isinstance(data, list):
-                con.print("  Нет заказов." if not data else f"  {data}")
-                continue
-            rows = [
-                [str(o["db_id"]), o["order_id"][:8] + "..", o["sender_order_id"],
-                 o["status"], o["execution_status"], o["mile_type"] or "-",
-                 o["created_at"][:16]]
-                for o in data
-            ]
-            show_table("5Post Orders", ["#", "OrderID", "SenderOrderID", "Status", "ExecStatus", "Mile", "Created"], rows)
-
+            fivepost_orders_list()
         elif choice == "2":
+            breadcrumb(["5Post", "Детали заказа"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("GET", f"/admin/5post/orders/{oid}")
-            if not data or "error" in data:
-                con.print(f"  {data}")
-                continue
-            show_detail(data, f"5Post Order #{oid}")
-            history = data.get("history", [])
-            if history:
-                rows = [[h["status"], h["execution_status"], h["mile_type"] or "-", h["change_date"][:19], h.get("error_desc") or ""]
-                        for h in history]
-                show_table("История статусов", ["Status", "ExecStatus", "Mile", "Date", "Error"], rows)
-
+            if oid.isdigit():
+                fivepost_order_detail(int(oid))
         elif choice == "3":
+            breadcrumb(["5Post", "Продвинуть статус"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("POST", f"/admin/5post/orders/{oid}/advance")
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']} ({data.get('mile_type') or '-'})" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']} ({data.get('mile_type') or '-'})")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                show_result(api("POST", f"/admin/5post/orders/{oid}/advance"))
         elif choice == "4":
+            breadcrumb(["5Post", "Продвинуть ВСЕ"])
             data = api("POST", "/admin/5post/advance-all")
             if data and data.get("ok"):
                 con.print(f"  [green]OK[/green] Продвинуто {data['advanced']} из {data['total_active']} активных" if HAS_RICH
                           else f"  OK Продвинуто {data['advanced']} из {data['total_active']} активных")
             else:
                 con.print(f"  {data}")
-
         elif choice == "5":
+            breadcrumb(["5Post", "Установить статус"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            status = _input("  Status (NEW/APPROVED/IN_PROCESS/DONE/CANCELLED/REJECTED): ").upper()
-            exec_st = _input("  Execution status (CREATED/APPROVED/PLACED_IN_POSTAMAT/PICKED_UP/...): ").upper()
-            mile = _input("  Mile type (FIRST_MILE/LAST_MILE/... или пусто): ").upper() or None
-            data = api("POST", f"/admin/5post/orders/{oid}/set-status",
-                       {"status": status, "execution_status": exec_st, "mile_type": mile})
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']}" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']}")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                status = _input("  Status (NEW/APPROVED/IN_PROCESS/DONE/CANCELLED/REJECTED): ").upper()
+                exec_st = _input("  Execution status (CREATED/APPROVED/PLACED_IN_POSTAMAT/PICKED_UP/...): ").upper()
+                mile = _input("  Mile type (FIRST_MILE/LAST_MILE/... или пусто): ").upper() or None
+                show_result(api("POST", f"/admin/5post/orders/{oid}/set-status",
+                                {"status": status, "execution_status": exec_st, "mile_type": mile}))
         elif choice == "6":
+            breadcrumb(["5Post", "Ветка <<не забрали>>"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("POST", f"/admin/5post/orders/{oid}/advance-unclaimed")
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']} (UNCLAIMED)" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']} (UNCLAIMED)")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                show_result(api("POST", f"/admin/5post/orders/{oid}/advance-unclaimed"))
         elif choice == "7":
+            breadcrumb(["5Post", "Lifecycle"])
             data = api("GET", "/admin/5post/lifecycle")
-            if not data:
-                continue
-            show_lifecycle(data, "5Post Lifecycle")
-            print("\n  Happy path:")
-            for s in data.get("happy_path", []):
-                print(f"    {s['step']:2d}. {s['status']}/{s['execution_status']} ({s['mile_type'] or '-'})")
-            print("\n  Unclaimed branch (от PLACED_IN_POSTAMAT):")
-            for s in data.get("unclaimed_branch", []):
-                print(f"    U{s['step']}. {s['status']}/{s['execution_status']} ({s['mile_type'] or '-'})")
+            if data:
+                print("\n  Happy path:")
+                for s in data.get("happy_path", []):
+                    print(f"    {s['step']:2d}. {s['status']}/{s['execution_status']} ({s['mile_type'] or '-'})")
+                print("\n  Unclaimed branch (от PLACED_IN_POSTAMAT):")
+                for s in data.get("unclaimed_branch", []):
+                    print(f"    U{s['step']}. {s['status']}/{s['execution_status']} ({s['mile_type'] or '-'})")
+
+
+def fivepost_orders_list() -> None:
+    """5Post orders list with select-by-number."""
+    while True:
+        breadcrumb(["5Post", "Заказы"])
+        data = api("GET", "/admin/5post/orders")
+        if not data or not isinstance(data, list):
+            con.print("  Нет заказов." if not data else f"  {data}")
+            return
+
+        orders = data
+        rows = [
+            [str(i + 1), str(o["db_id"]), o["sender_order_id"],
+             o["status"], o["execution_status"], o["mile_type"] or "-",
+             o["created_at"][:16]]
+            for i, o in enumerate(orders)
+        ]
+        show_table(f"5Post Orders ({len(orders)})",
+                   ["#", "DB ID", "SenderOrderID", "Status", "ExecStatus", "Mile", "Created"], rows)
+
+        print()
+        con.print("  [yellow][номер][/yellow]=детали+действия  [yellow]R[/yellow]efresh  [yellow]0[/yellow]=назад" if HAS_RICH
+                  else "  [номер]=детали+действия  R-efresh  0=назад")
+        choice = _input("  > ")
+        if choice in ("0", "q", ""):
+            return
+        if choice == "r":
+            continue  # refresh
+        try:
+            idx = int(choice)
+            if 1 <= idx <= len(orders):
+                fivepost_order_actions(orders[idx - 1])
+        except ValueError:
+            pass
+
+
+def fivepost_order_detail(db_id: int) -> None:
+    """Show 5Post order details + history."""
+    data = api("GET", f"/admin/5post/orders/{db_id}")
+    if not data or "error" in data:
+        con.print(f"  {data}")
+        return
+    show_detail(data, f"5Post Order #{db_id}")
+    history = data.get("history", [])
+    if history:
+        rows = [[h["status"], h["execution_status"], h["mile_type"] or "-", h["change_date"][:19], h.get("error_desc") or ""]
+                for h in history]
+        show_table("История статусов", ["Status", "ExecStatus", "Mile", "Date", "Error"], rows)
+
+
+def fivepost_order_actions(order: dict) -> None:
+    """Detail view + action menu for a 5Post order. Returns to list after action."""
+    db_id = order["db_id"]
+    sender = order["sender_order_id"]
+
+    breadcrumb(["5Post", "Заказы", sender])
+    detail = api("GET", f"/admin/5post/orders/{db_id}")
+    if not detail or "error" in detail:
+        con.print(f"  {detail}")
+        return
+
+    show_detail(detail, f"5Post Order #{db_id}")
+    history = detail.get("history", [])
+    if history:
+        rows = [[h["status"], h["execution_status"], h["mile_type"] or "-", h["change_date"][:19], h.get("error_desc") or ""]
+                for h in history]
+        show_table("История статусов", ["Status", "ExecStatus", "Mile", "Date", "Error"], rows)
+
+    # Show available transitions
+    transitions = detail.get("available_transitions", [])
+    print()
+    if transitions:
+        con.print("  [bold]Доступные переходы:[/bold]" if HAS_RICH else "  Доступные переходы:")
+        for i, t in enumerate(transitions, 1):
+            con.print(f"    [green]{i}[/green]. {t['label']}  [dim]({t['action']})[/dim]" if HAS_RICH
+                      else f"    {i}. {t['label']}  ({t['action']})")
+    else:
+        con.print("  [dim]Нет доступных переходов (терминальный статус)[/dim]" if HAS_RICH
+                  else "  Нет доступных переходов (терминальный статус)")
+
+    print()
+    print("  S. Установить произвольный статус")
+    print("  0. Назад к списку")
+
+    choice = _input(f"  {sender} > ")
+    if choice in ("0", "q", ""):
+        return
+
+    if choice.lower() == "s":
+        status = _input("  Status: ").upper()
+        exec_st = _input("  Execution status: ").upper()
+        mile = _input("  Mile type (или пусто): ").upper() or None
+        show_result(api("POST", f"/admin/5post/orders/{db_id}/set-status",
+                        {"status": status, "execution_status": exec_st, "mile_type": mile}))
+        return
+
+    try:
+        idx = int(choice)
+        if 1 <= idx <= len(transitions):
+            t = transitions[idx - 1]
+            action = t["action"]
+            if action == "next":
+                show_result(api("POST", f"/admin/5post/orders/{db_id}/advance"))
+            elif action == "unclaimed":
+                show_result(api("POST", f"/admin/5post/orders/{db_id}/advance-unclaimed"))
+            elif action == "cancel":
+                show_result(api("POST", f"/admin/5post/orders/{db_id}/set-status",
+                                {"status": "CANCELLED", "execution_status": "CANCELLED", "mile_type": None}))
+            elif action == "reject":
+                show_result(api("POST", f"/admin/5post/orders/{db_id}/set-status",
+                                {"status": "REJECTED", "execution_status": "REJECTED", "mile_type": None}))
+    except ValueError:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -238,13 +332,13 @@ def menu_5post() -> None:
 
 def menu_magnit() -> None:
     while True:
-        con.print("\n[bold blue]=== Magnit ===[/bold blue]" if HAS_RICH else "\n=== Magnit ===")
+        breadcrumb(["Magnit"])
         print("  1. Список заказов")
         print("  2. Детали заказа")
         print("  3. Продвинуть статус (next)")
         print("  4. Продвинуть ВСЕ заказы")
         print("  5. Установить статус")
-        print("  6. Ветка «возврат»")
+        print("  6. Ветка <<возврат>>")
         print("  7. Lifecycle")
         print("  0. Назад")
 
@@ -253,84 +347,150 @@ def menu_magnit() -> None:
             return
 
         if choice == "1":
-            data = api("GET", "/admin/magnit/orders")
-            if not data or not isinstance(data, list):
-                con.print("  Нет заказов." if not data else f"  {data}")
-                continue
-            rows = [
-                [str(o["db_id"]), o["tracking_number"][:8] + "..", o["customer_order_id"],
-                 o["recipient_name"] or "-", o["status"], o["created_at"][:16]]
-                for o in data
-            ]
-            show_table("Magnit Orders", ["#", "Tracking", "CustomerOrderID", "Recipient", "Статус", "Created"], rows)
-
+            magnit_orders_list()
         elif choice == "2":
+            breadcrumb(["Magnit", "Детали заказа"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("GET", f"/admin/magnit/orders/{oid}")
-            if not data or "error" in data:
-                con.print(f"  {data}")
-                continue
-            show_detail(data, f"Magnit Order #{oid}")
-            history = data.get("history", [])
-            if history:
-                rows = [[h["status"], h["timestamp"][:19]] for h in history]
-                show_table("История статусов", ["Статус", "Timestamp"], rows)
-
+            if oid.isdigit():
+                magnit_order_detail(int(oid))
         elif choice == "3":
+            breadcrumb(["Magnit", "Продвинуть статус"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("POST", f"/admin/magnit/orders/{oid}/advance")
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']}" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']}")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                show_result(api("POST", f"/admin/magnit/orders/{oid}/advance"))
         elif choice == "4":
+            breadcrumb(["Magnit", "Продвинуть ВСЕ"])
             data = api("POST", "/admin/magnit/advance-all")
             if data and data.get("ok"):
                 con.print(f"  [green]OK[/green] Продвинуто {data['advanced']} из {data['total_active']} активных" if HAS_RICH
                           else f"  OK Продвинуто {data['advanced']} из {data['total_active']} активных")
             else:
                 con.print(f"  {data}")
-
         elif choice == "5":
+            breadcrumb(["Magnit", "Установить статус"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            status = _input("  Status (NEW/CREATED/DELIVERING_STARTED/ACCEPTED_AT_POINT/ISSUED/...): ").upper()
-            data = api("POST", f"/admin/magnit/orders/{oid}/set-status", {"status": status})
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']}" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']}")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                status = _input("  Status (NEW/CREATED/DELIVERING_STARTED/ACCEPTED_AT_POINT/ISSUED/...): ").upper()
+                show_result(api("POST", f"/admin/magnit/orders/{oid}/set-status", {"status": status}))
         elif choice == "6":
+            breadcrumb(["Magnit", "Ветка <<возврат>>"])
             oid = _input("  Order # (db_id): ")
-            if not oid.isdigit():
-                continue
-            data = api("POST", f"/admin/magnit/orders/{oid}/advance-return")
-            if data and data.get("ok"):
-                con.print(f"  [green]OK[/green] {data['old']} → {data['new']} (RETURN)" if HAS_RICH
-                          else f"  OK {data['old']} → {data['new']} (RETURN)")
-            else:
-                con.print(f"  {data}")
-
+            if oid.isdigit():
+                show_result(api("POST", f"/admin/magnit/orders/{oid}/advance-return"))
         elif choice == "7":
+            breadcrumb(["Magnit", "Lifecycle"])
             data = api("GET", "/admin/magnit/lifecycle")
-            if not data:
-                continue
-            show_lifecycle(data, "Magnit Lifecycle")
-            print("\n  Happy path:")
-            for i, s in enumerate(data.get("happy_path", []), 1):
-                print(f"    {i}. {s}")
-            print("\n  Return branch (от ACCEPTED_AT_POINT):")
-            for i, s in enumerate(data.get("return_branch", []), 1):
-                print(f"    R{i}. {s}")
+            if data:
+                print("\n  Happy path:")
+                for i, s in enumerate(data.get("happy_path", []), 1):
+                    print(f"    {i}. {s}")
+                print("\n  Return branch (от ACCEPTED_AT_POINT):")
+                for i, s in enumerate(data.get("return_branch", []), 1):
+                    print(f"    R{i}. {s}")
+
+
+def magnit_orders_list() -> None:
+    """Magnit orders list with select-by-number."""
+    while True:
+        breadcrumb(["Magnit", "Заказы"])
+        data = api("GET", "/admin/magnit/orders")
+        if not data or not isinstance(data, list):
+            con.print("  Нет заказов." if not data else f"  {data}")
+            return
+
+        orders = data
+        rows = [
+            [str(i + 1), str(o["db_id"]), o["customer_order_id"],
+             o["recipient_name"] or "-", o["status"], o["created_at"][:16]]
+            for i, o in enumerate(orders)
+        ]
+        show_table(f"Magnit Orders ({len(orders)})",
+                   ["#", "DB ID", "CustomerOrderID", "Recipient", "Status", "Created"], rows)
+
+        print()
+        con.print("  [yellow][номер][/yellow]=детали+действия  [yellow]R[/yellow]efresh  [yellow]0[/yellow]=назад" if HAS_RICH
+                  else "  [номер]=детали+действия  R-efresh  0=назад")
+        choice = _input("  > ")
+        if choice in ("0", "q", ""):
+            return
+        if choice == "r":
+            continue  # refresh
+        try:
+            idx = int(choice)
+            if 1 <= idx <= len(orders):
+                magnit_order_actions(orders[idx - 1])
+        except ValueError:
+            pass
+
+
+def magnit_order_detail(db_id: int) -> None:
+    """Show Magnit order details + history."""
+    data = api("GET", f"/admin/magnit/orders/{db_id}")
+    if not data or "error" in data:
+        con.print(f"  {data}")
+        return
+    show_detail(data, f"Magnit Order #{db_id}")
+    history = data.get("history", [])
+    if history:
+        rows = [[h["status"], h["timestamp"][:19]] for h in history]
+        show_table("История статусов", ["Status", "Timestamp"], rows)
+
+
+def magnit_order_actions(order: dict) -> None:
+    """Detail view + action menu for a Magnit order. Returns to list after action."""
+    db_id = order["db_id"]
+    customer_id = order["customer_order_id"]
+
+    breadcrumb(["Magnit", "Заказы", customer_id])
+    detail = api("GET", f"/admin/magnit/orders/{db_id}")
+    if not detail or "error" in detail:
+        con.print(f"  {detail}")
+        return
+
+    show_detail(detail, f"Magnit Order #{db_id}")
+    history = detail.get("history", [])
+    if history:
+        rows = [[h["status"], h["timestamp"][:19]] for h in history]
+        show_table("История статусов", ["Status", "Timestamp"], rows)
+
+    # Show available transitions
+    transitions = detail.get("available_transitions", [])
+    print()
+    if transitions:
+        con.print("  [bold]Доступные переходы:[/bold]" if HAS_RICH else "  Доступные переходы:")
+        for i, t in enumerate(transitions, 1):
+            con.print(f"    [green]{i}[/green]. {t['label']}  [dim]({t['action']})[/dim]" if HAS_RICH
+                      else f"    {i}. {t['label']}  ({t['action']})")
+    else:
+        con.print("  [dim]Нет доступных переходов (терминальный статус)[/dim]" if HAS_RICH
+                  else "  Нет доступных переходов (терминальный статус)")
+
+    print()
+    print("  S. Установить произвольный статус")
+    print("  0. Назад к списку")
+
+    choice = _input(f"  {customer_id} > ")
+    if choice in ("0", "q", ""):
+        return
+
+    if choice.lower() == "s":
+        status = _input("  Status: ").upper()
+        show_result(api("POST", f"/admin/magnit/orders/{db_id}/set-status", {"status": status}))
+        return
+
+    try:
+        idx = int(choice)
+        if 1 <= idx <= len(transitions):
+            t = transitions[idx - 1]
+            action = t["action"]
+            if action == "next":
+                show_result(api("POST", f"/admin/magnit/orders/{db_id}/advance"))
+            elif action == "return":
+                show_result(api("POST", f"/admin/magnit/orders/{db_id}/advance-return"))
+            elif action == "cancel":
+                show_result(api("POST", f"/admin/magnit/orders/{db_id}/set-status", {"status": "CANCELED_BY_PROVIDER"}))
+    except ValueError:
+        pass
 
 
 # ---------------------------------------------------------------------------
@@ -357,7 +517,8 @@ def main_menu() -> None:
         print(f"{'=' * 50}")
 
     while True:
-        print("\n  1. 5Post")
+        breadcrumb(["Emulator"])
+        print("  1. 5Post")
         print("  2. Magnit")
         print("  3. Статистика")
         print("  0. Выход")
@@ -371,9 +532,10 @@ def main_menu() -> None:
         elif choice == "2":
             menu_magnit()
         elif choice == "3":
+            breadcrumb(["Emulator", "Статистика"])
             stats = api("GET", "/admin/stats")
             if stats:
-                con.print(f"  5Post: {stats['fivepost_orders']} заказов")
+                con.print(f"  5Post:  {stats['fivepost_orders']} заказов")
                 con.print(f"  Magnit: {stats['magnit_orders']} заказов")
 
 

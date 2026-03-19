@@ -64,12 +64,12 @@ server {
 
 ## Persistent Volumes
 
-| Path | Description |
-|------|-------------|
-| `/var/lib/postgresql/data` | Database files |
-| `/var/lib/redis/data` | Redis persistence |
-| `./data/storage` | Local file storage (labels, exports) |
-| `./logs` | Application logs |
+| Path                       | Description                          |
+| -------------------------- | ------------------------------------ |
+| `/var/lib/postgresql/data` | Database files                       |
+| `/var/lib/redis/data`      | Redis persistence                    |
+| `./data/storage`           | Local file storage (labels, exports) |
+| `./logs`                   | Application logs                     |
 
 ## Database Backup
 

@@ -323,8 +323,16 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
     order_list_text = "\n".join(items_lines) if items_lines else "(нет товаров)"
     order_list_text += "\n" + "\n".join(summary_lines)
 
+    # Plain text order list without prices
+    no_price_lines = []
+    if hasattr(order, "items") and order.items:
+        for item in order.items:
+            no_price_lines.append(f"  {item.product_sku} — {item.product_name} x{item.quantity}")
+    order_list_no_price_text = "\n".join(no_price_lines) if no_price_lines else "(нет товаров)"
+
     # HTML version of order list (for HTML templates)
     items_html_rows = []
+    items_no_price_html_rows = []
     if hasattr(order, "items") and order.items:
         for item in order.items:
             items_html_rows.append(
@@ -337,8 +345,19 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
                 f'{item.total_price / 100:.2f} &#8381;</td>'
                 f'</tr>'
             )
+            items_no_price_html_rows.append(
+                f'<tr>'
+                f'<td style="padding:8px 0;border-bottom:1px solid #F0E6D6;color:#333;font-size:14px;">'
+                f'{item.product_name}</td>'
+                f'<td style="padding:8px 12px;border-bottom:1px solid #F0E6D6;color:#888;font-size:14px;text-align:center;">'
+                f'{item.quantity} шт.</td>'
+                f'</tr>'
+            )
     items_table = "".join(items_html_rows) if items_html_rows else (
         '<tr><td colspan="3" style="padding:8px 0;color:#999;">нет товаров</td></tr>'
+    )
+    items_no_price_table = "".join(items_no_price_html_rows) if items_no_price_html_rows else (
+        '<tr><td colspan="2" style="padding:8px 0;color:#999;">нет товаров</td></tr>'
     )
 
     summary_html = (
@@ -365,6 +384,12 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
         f'</table>'
     )
 
+    order_list_no_price_html = (
+        f'<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;">'
+        f'{items_no_price_table}'
+        f'</table>'
+    )
+
     # Delivery company human-readable name
     delivery_company = _DELIVERY_COMPANY_MAP.get(provider, provider)
 
@@ -385,13 +410,15 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
         "ORDER_DATE": order.created_at.strftime("%d.%m.%Y %H:%M") if order.created_at else "",
         "ORDER_LIST": order_list_text,
         "ORDER_LIST_HTML": order_list_html,
+        "ORDER_LIST_WITHOUT_PRICE": order_list_no_price_text,
+        "ORDER_LIST_WITHOUT_PRICE_HTML": order_list_no_price_html,
         "PRICE": f"{total / 100:.2f} руб." if total else "0",
         "UNIQUE_ORDER_ID": order.guest_order_token or "",
         "DELIVERCOMPANY": delivery_company,
         "PVZNAME": pvz_name,
         "PVZID": pvz_id,
-        "PVZDETAILS": pvz_details_html,
-        "PVZDETAILS_TEXT": pvz_details_text,
+        "PVZDETAILS": pvz_details_text,
+        "PVZDETAILS_HTML": pvz_details_html,
         "SERVER_NAME": settings.server_name,
         "SHOP_NAME": settings.shop_name,
         "SALE_EMAIL": settings.sale_email,
