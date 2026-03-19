@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from fastapi import APIRouter, Query
+from pydantic import BaseModel, Field
 
 from apps.api.deps import DbSession, RequestId
 from packages.services import delivery as delivery_service
+from packages.services.delivery.clustering import get_clustered_points
 
 router = APIRouter(prefix="/delivery/magnit", tags=["delivery-magnit"])
 
@@ -39,6 +41,39 @@ async def nearest_cities(
 ):
     cities = await delivery_service.find_nearest_magnit_cities(db, lat, lon, limit)
     return {"ok": True, "data": cities, "request_id": request_id}
+
+
+class ClusteredRequest(BaseModel):
+    zoom: int = Field(..., ge=1, le=20)
+    min_lat: float = Field(..., alias="minLat")
+    max_lat: float = Field(..., alias="maxLat")
+    min_lon: float = Field(..., alias="minLon")
+    max_lon: float = Field(..., alias="maxLon")
+    types: list[str] = Field(default_factory=list)
+    cod_filter: bool = Field(default=False, alias="codFilter")
+
+    model_config = {"populate_by_name": True}
+
+
+@router.post("/clustered")
+async def clustered_points(
+    body: ClusteredRequest,
+    db: DbSession,
+    request_id: RequestId,
+):
+    """Server-side clustered pickup points for map viewport."""
+    clusters = await get_clustered_points(
+        db,
+        provider="magnit",
+        zoom=body.zoom,
+        min_lat=body.min_lat,
+        min_lon=body.min_lon,
+        max_lat=body.max_lat,
+        max_lon=body.max_lon,
+        types=body.types or None,
+        cod_filter=body.cod_filter,
+    )
+    return {"ok": True, "data": {"clusters": clusters}, "request_id": request_id}
 
 
 @router.post("/estimate")
