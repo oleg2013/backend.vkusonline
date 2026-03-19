@@ -46,7 +46,7 @@ async def _create_payment_for_order(db, order, idempotency_key, request_id):
     provider_result = await yookassa_client.create_payment(
         amount_rub=order.total / 100,
         receipt=receipt,
-        return_url=settings.yookassa_return_url,
+        return_url=settings.effective_yookassa_return_url,
         idempotency_key=idempotency_key,
         description=f"Заказ {order.order_number}",
     )

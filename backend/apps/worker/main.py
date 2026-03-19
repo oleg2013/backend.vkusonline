@@ -16,6 +16,18 @@ logger = structlog.get_logger(__name__)
 async def main():
     logger.info("worker_starting")
 
+    # Subscribe event handlers (same as API process) so that
+    # status changes triggered by the poller can send emails.
+    from packages.services.events import event_dispatcher
+    from packages.services.events.order_handlers import (
+        on_order_status_changed,
+        on_order_created,
+        on_client_event,
+    )
+    event_dispatcher.subscribe("order_status_changed", on_order_status_changed)
+    event_dispatcher.subscribe("order_created", on_order_created)
+    event_dispatcher.subscribe("client_event", on_client_event)
+
     scheduler = setup_scheduler()
     scheduler.start()
 

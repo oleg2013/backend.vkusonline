@@ -45,7 +45,7 @@ class YooKassaClient:
     ) -> None:
         self.shop_id: str = shop_id or settings.yookassa_shop_id
         self.secret_key: str = secret_key or settings.yookassa_secret_key
-        self.return_url: str = return_url or settings.yookassa_return_url
+        self.return_url: str = return_url or settings.effective_yookassa_return_url
 
         self._client: httpx.AsyncClient = httpx.AsyncClient(
             base_url=_YOOKASSA_BASE_URL,

@@ -15,10 +15,11 @@ PREPAID_TRANSITIONS: dict[str, set[str]] = {
     OrderStatus.PAID: {OrderStatus.CONFIRMED, OrderStatus.CANCELLED},
     OrderStatus.CONFIRMED: {OrderStatus.SHIPPED},
     OrderStatus.SHIPPED: {OrderStatus.READY_FOR_PICKUP, OrderStatus.RETURNED_TO_SUPPLIER},
-    OrderStatus.READY_FOR_PICKUP: {OrderStatus.DELIVERED, OrderStatus.RETURNED_TO_SUPPLIER},
+    OrderStatus.READY_FOR_PICKUP: {OrderStatus.DELIVERED, OrderStatus.CLIENT_DONT_PICKUP, OrderStatus.RETURNED_TO_SUPPLIER},
+    OrderStatus.CLIENT_DONT_PICKUP: {OrderStatus.RETURNED_TO_SUPPLIER, OrderStatus.REFUNDED},
     OrderStatus.DELIVERED: set(),
     OrderStatus.CANCELLED: set(),
-    OrderStatus.RETURNED_TO_SUPPLIER: set(),
+    OrderStatus.RETURNED_TO_SUPPLIER: {OrderStatus.REFUNDED},
     OrderStatus.REFUNDED: set(),
 }
 

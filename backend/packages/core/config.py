@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_debug: bool = False
     app_secret_key: str = "change-me"
-    app_cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
+    app_cors_origins: list[str] | None = None  # auto-built from server_name if not set
 
     # Database
     database_url: str = "postgresql+asyncpg://vkus:vkus_secret@localhost:5432/vkus_online"
@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     # YooKassa
     yookassa_shop_id: str = ""
     yookassa_secret_key: str = ""
-    yookassa_return_url: str = "https://vkus.online/#/orders"
+    yookassa_return_url: str = ""  # auto-built from server_name if not set
     yookassa_webhook_secret: str = ""
 
     # Checkout
@@ -96,6 +96,34 @@ class Settings(BaseSettings):
         return self.database_url.replace("+asyncpg", "+psycopg2").replace(
             "postgresql+psycopg2", "postgresql"
         )
+
+    @property
+    def site_url(self) -> str:
+        """Full site URL derived from server_name."""
+        sn = self.server_name
+        if sn.startswith("http"):
+            return sn.rstrip("/")
+        if sn.startswith("localhost") or sn.startswith("127."):
+            return f"http://{sn}"
+        return f"https://{sn}"
+
+    @property
+    def cors_origins(self) -> list[str]:
+        """CORS origins: use explicit APP_CORS_ORIGINS if set, otherwise derive from server_name."""
+        if self.app_cors_origins is not None:
+            return self.app_cors_origins
+        origins = ["http://localhost:3000", "http://localhost:5173"]
+        url = self.site_url
+        if url not in origins:
+            origins.append(url)
+        return origins
+
+    @property
+    def effective_yookassa_return_url(self) -> str:
+        """YooKassa return URL: use explicit value if set, otherwise derive from server_name."""
+        if self.yookassa_return_url:
+            return self.yookassa_return_url
+        return f"{self.site_url}/#/orders"
 
 
 settings = Settings()
