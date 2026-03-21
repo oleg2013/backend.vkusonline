@@ -28,6 +28,7 @@ from packages.enums import OrderStatus, ShipmentStatus
 from packages.models.order import Order
 from packages.models.shipment import Shipment, ShipmentStatusHistory
 from packages.services import checkout as checkout_service
+from packages.services.order_state_machine import validate_transition
 
 logger = structlog.get_logger("worker.poll_statuses")
 
@@ -54,6 +55,85 @@ _ORDER_NO_AUTO_UPDATE = {
     OrderStatus.RETURNED_TO_SUPPLIER,
     OrderStatus.REFUNDED,
 }
+
+
+# Ordered chain of delivery-related order statuses for auto-advance.
+# When a target status is not directly reachable, walk forward through this chain.
+_ORDER_DELIVERY_CHAIN: list[OrderStatus] = [
+    OrderStatus.SHIPPED,
+    OrderStatus.READY_FOR_PICKUP,
+    OrderStatus.DELIVERED,
+]
+
+_ORDER_RETURN_CHAIN: list[OrderStatus] = [
+    OrderStatus.SHIPPED,
+    OrderStatus.READY_FOR_PICKUP,
+    OrderStatus.CLIENT_DONT_PICKUP,
+    OrderStatus.RETURNED_TO_SUPPLIER,
+]
+
+
+async def _auto_advance_order(
+    db,
+    order: Order,
+    target: OrderStatus,
+    provider: str,
+    provider_status: str,
+) -> None:
+    """Advance order to target status, walking through intermediate steps if needed.
+
+    Example: shipped→delivered requires passing through ready_for_pickup first.
+    """
+    # Direct transition works — simple case
+    if validate_transition(order.order_type, order.status, target.value):
+        await checkout_service.update_order_status(db, order, target)
+        logger.info(
+            "order_status_auto_updated",
+            order_number=order.order_number,
+            old_status=order.status,
+            new_status=target.value,
+            trigger=f"{provider}:{provider_status}",
+        )
+        return
+
+    # Pick the right chain based on target
+    if target in {OrderStatus.CLIENT_DONT_PICKUP, OrderStatus.RETURNED_TO_SUPPLIER}:
+        chain = _ORDER_RETURN_CHAIN
+    else:
+        chain = _ORDER_DELIVERY_CHAIN
+
+    # Find current position and target position in the chain
+    try:
+        current_idx = next(i for i, s in enumerate(chain) if s.value == order.status)
+    except StopIteration:
+        # Current status not in chain — can't auto-advance
+        raise ValueError(
+            f"Cannot auto-advance order ({order.order_type}) from '{order.status}' "
+            f"to '{target.value}': current status not in delivery chain"
+        )
+
+    try:
+        target_idx = chain.index(target)
+    except ValueError:
+        raise ValueError(
+            f"Target '{target.value}' not in delivery chain"
+        )
+
+    if target_idx <= current_idx:
+        return  # already at or past target
+
+    # Walk through intermediate statuses
+    for step in chain[current_idx + 1 : target_idx + 1]:
+        old = order.status
+        order = await checkout_service.update_order_status(db, order, step)
+        logger.info(
+            "order_status_auto_updated",
+            order_number=order.order_number,
+            old_status=old,
+            new_status=step.value,
+            trigger=f"{provider}:{provider_status}",
+            intermediate=step != target,
+        )
 
 
 async def _poll_provider(provider: str) -> tuple[int, int]:
@@ -154,18 +234,13 @@ async def _poll_provider(provider: str) -> tuple[int, int]:
 
                     if order and order.status not in [st.value for st in _ORDER_NO_AUTO_UPDATE]:
                         try:
-                            await checkout_service.update_order_status(
-                                db, order, target_order_status
-                            )
-                            logger.info(
-                                "order_status_auto_updated",
-                                order_number=order.order_number,
-                                old_status=order.status,
-                                new_status=target_order_status.value,
-                                trigger=f"{provider}:{provider_status}",
+                            # If direct transition is invalid, walk through
+                            # intermediate statuses (e.g. shipped→ready_for_pickup→delivered)
+                            await _auto_advance_order(
+                                db, order, target_order_status,
+                                provider, provider_status,
                             )
                         except Exception as exc:
-                            # State machine may reject transition — log but don't fail
                             logger.warning(
                                 "order_status_auto_update_rejected",
                                 order_number=order.order_number,

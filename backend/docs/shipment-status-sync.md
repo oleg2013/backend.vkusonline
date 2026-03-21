@@ -215,30 +215,38 @@ orders (1) ──── (1) shipments (1) ──── (N) shipment_status_histo
 
 ### 5Post
 
-| 5Post статус       | Описание         | → ShipmentStatus   | → OrderStatus              | Email              |
-|--------------------|------------------|--------------------|----------------------------|--------------------|
-| `NEW`              | Заказ создан     | `created`          | — (остаётся `shipped`)     | —                  |
-| `CREATED`          | Принят системой  | `created`          | —                          | —                  |
-| `ACCEPTED`         | Принят на складе | `accepted`         | —                          | —                  |
-| `SORTING`          | На сортировке    | `in_transit`       | —                          | —                  |
-| `IN_TRANSIT`       | В пути           | `in_transit`       | —                          | —                  |
-| `ON_POINT`         | Прибыл в ПВЗ     | `arrived`          | —                          | —                  |
-| `READY_FOR_PICKUP` | Готов к выдаче   | `ready_for_pickup` | **`ready_for_pickup`**     | "Ожидает в ПВЗ"    |
-| `ISSUED`           | Выдан клиенту    | `issued`           | **`delivered`**            | "Заказ получен"    |
-| `DELIVERED`        | Доставлен        | `issued`           | **`delivered`**            | "Заказ получен"    |
-| `RETURNING`        | Возвращается     | `returning`        | **`client_dont_pickup`**   | Уведомление админу |
-| `RETURNED`         | Возвращён        | `returned`         | **`returned_to_supplier`** | Уведомление админу |
-| `CANCELLED`        | Отменён          | `cancelled`        | — (ручное решение)         | —                  |
-| `LOST`             | Утерян           | `lost`             | — (ручное решение)         | —                  |
+**Примечание:** 5Post возвращает `execution_status` как `statusCode`. Наш поллер маппит именно его.
 
+| 5Post execution_status                    | Описание                  | → ShipmentStatus   | → OrderStatus              |
+|-------------------------------------------|---------------------------|--------------------|-----------------------------|
+| `CREATED`                                 | Заказ создан              | `created`          | — (остаётся `shipped`)      |
+| `APPROVED`                                | Подтверждён               | `created`          | —                           |
+| `RECEIVED_IN_WAREHOUSE_IN_DETAILS`        | Принят на складе          | `accepted`         | —                           |
+| `SORTED_IN_WAREHOUSE`                     | Отсортирован              | `in_transit`       | —                           |
+| `COMPLECTED_IN_WAREHOUSE`                 | Скомплектован             | `in_transit`       | —                           |
+| `READY_TO_BE_SHIPPED_FROM_WAREHOUSE`      | Готов к отправке          | `in_transit`       | —                           |
+| `SHIPPED`                                 | Отправлен                 | `in_transit`       | —                           |
+| `RECEIVED_IN_STORE`                       | Принят в магазине         | `arrived`          | —                           |
+| `PLACED_IN_POSTAMAT`                      | Помещён в постамат        | `ready_for_pickup` | **`ready_for_pickup`**      |
+| `PICKED_UP`                               | Клиент забрал             | `issued`           | **`delivered`**             |
+| `READY_FOR_WITHDRAW_FROM_PICKUP_POINT`    | Клиент не забрал, возврат | `returning`        | **`client_dont_pickup`**    |
+| `WITHDRAWN_FROM_PICKUP_POINT`             | Изъят из ПВЗ              | `returning`        | **`client_dont_pickup`**    |
+| `RETURNED_TO_PARTNER`                     | Возвращён нам             | `returned`         | **`returned_to_supplier`**  |
+| `CANCELLED`                               | Отменён                   | `cancelled`        | — (ручное решение)          |
+| `LOST`                                    | Утерян                    | `lost`             | — (ручное решение)          |
 
-NEW → CREATED → DELIVERING_STARTED → ACCEPTED_AT_POINT → ISSUED
- │       │              │                    │               │
- │       │              │                    │               └─ Клиент забрал в магазине
- │       │              │                    └─ Привезли в магазин Магнит, лежит на кассе
- │       │              └─ Посылка едет со склада в магазин 
- │       └─ Система приняла заказ 
- └─ Мы создали через API 
+### 5Post Happy Path
+```
+NEW/CREATED → APPROVED → RECEIVED_IN_WAREHOUSE → SORTED → COMPLECTED →
+→ READY_TO_BE_SHIPPED → SHIPPED → RECEIVED_IN_STORE → PLACED_IN_POSTAMAT → PICKED_UP
+     (created)              (accepted)         (in_transit)          (ready_for_pickup)  (issued/delivered)
+```
+
+### 5Post Unclaimed Path (клиент не забрал)
+```
+PLACED_IN_POSTAMAT → READY_FOR_WITHDRAW → WITHDRAWN_FROM_PICKUP_POINT → RETURNED_TO_PARTNER
+  (ready_for_pickup)    (returning/client_dont_pickup)                      (returned/returned_to_supplier)
+```
 
 
 
@@ -304,6 +312,37 @@ RETURNED_TO_PROVIDER - returned_to_supplier
 - `returned_to_supplier` — уже возвращён
 - `refunded` — деньги возвращены
 
+## Auto-advance: обработка пропущенных промежуточных статусов
+
+Поллер проверяет статус у провайдера только текущий (не историю). Если между двумя циклами поллера провайдер прошёл несколько статусов (например: `PLACED_IN_POSTAMAT` → `PICKED_UP` за 5 минут), поллер увидит сразу финальный статус.
+
+**Проблема:** State machine запрещает прямой переход `shipped → delivered` (требуется промежуточный `ready_for_pickup`).
+
+**Решение:** Функция `_auto_advance_order()` автоматически проходит через промежуточные статусы:
+
+### Цепочка доставки (happy path):
+```
+shipped → ready_for_pickup → delivered
+```
+Если поллер видит `PICKED_UP` (→ `delivered`), а заказ в `shipped`, он автоматически пройдёт:
+1. `shipped → ready_for_pickup` (промежуточный)
+2. `ready_for_pickup → delivered` (целевой)
+
+### Цепочка возврата (unclaimed path):
+```
+shipped → ready_for_pickup → client_dont_pickup → returned_to_supplier
+```
+Если поллер видит `RETURNING` (→ `client_dont_pickup`), а заказ в `shipped`, он пройдёт:
+1. `shipped → ready_for_pickup` (промежуточный)
+2. `ready_for_pickup → client_dont_pickup` (целевой)
+
+Каждый промежуточный шаг:
+- Проходит через state machine (валидация)
+- Создаёт запись в `order_events`
+- Триггерит email (event dispatch)
+
+**Файл:** `apps/worker/jobs/poll_shipment_statuses.py` → `_auto_advance_order()`
+
 ## Защита от проблем
 
 ### Наложение циклов
@@ -317,6 +356,9 @@ Redis lock `poll_lock:{provider}` с TTL 1 час. Если предыдущий
 
 ### State machine rejection
 Если state machine не позволяет переход (например Order уже в `cancelled`), логируется `order_status_auto_update_rejected`, но shipment всё равно обновляется.
+
+### Пропуск промежуточных статусов
+Обрабатывается `_auto_advance_order()` — автоматически проходит через все нужные промежуточные статусы. Если текущий статус заказа не в цепочке — логируется warning и transition пропускается.
 
 ## Терминальные статусы Shipment (не опрашиваются)
 
@@ -338,6 +380,7 @@ Redis lock `poll_lock:{provider}` с TTL 1 час. Если предыдущий
 - `poll_fivepost_started` / `poll_fivepost_completed`
 - `poll_magnit_started` / `poll_magnit_completed`
 - `shipment_status_changed` — при обнаружении изменения
-- `order_status_auto_updated` — при обновлении Order
+- `order_status_auto_updated` — при обновлении Order (включая промежуточные шаги, поле `intermediate=True/False`)
+- `order_status_auto_update_rejected` — state machine отклонил переход
 - `poll_skipped_lock_held` — пропуск из-за lock
 - `poll_shipment_error` — ошибка при проверке конкретного заказа

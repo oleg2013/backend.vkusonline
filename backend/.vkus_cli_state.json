@@ -1,8 +1,8 @@
 {
-  "last_order": "VK-260320-7P223W",
-  "guest_session_id": "1544202e-b47f-4abb-9a25-11f35f4bba87",
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NWQ0MmUzZS05MjM5LTQzMjEtYWU1NC00Yzg2MTdkMmUyOWUiLCJpYXQiOjE3NzQwNDkyMTMsImV4cCI6MTc3NDA1MDExMywidHlwZSI6ImFjY2VzcyJ9.zPCeJlK9dIWWPkelnABDT6MvBHeGVH0qCgVS1-jU02g",
-  "refresh_token": "MzJh0nRN1t5Z7Ad6BSy9yDYz7CG_h1xZ9T85PMyP0WKbjInq31U1wl1RK507oh4U",
+  "last_order": "VK-260321-LVW4PW",
+  "guest_session_id": "a12096f7-c98a-4756-a538-6a516fe12986",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZjEwODZmYy0xMzUwLTQxZTItYmQ2OS1jZDM1NDY4MzIyMTMiLCJpYXQiOjE3NzQxMDYwMTIsImV4cCI6MTc3NDEwNjkxMiwidHlwZSI6ImFjY2VzcyJ9.exlHUVzqW5DoyQT3fxhZLYcIxFWwEfyaalOKJ9stEF8",
+  "refresh_token": "zvuM2n9F0f_J5_P6vSj_TxXHoO1MiKKa0oX4NAkimYVQvJ1P2ifuS2m0UHjZF86H",
   "base_url": "https://api.vkus.online",
   "detail_server_response": false
 }
