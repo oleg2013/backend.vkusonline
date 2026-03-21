@@ -228,6 +228,8 @@ async def create_guest_order(
         payment_method=body.payment_method,
         guest_session_id=guest_session_id,
         idempotency_key=body.idempotency_key,
+        recipient_name=body.recipient_name,
+        recipient_phone=body.recipient_phone,
     )
 
     # Auto-create YooKassa payment for card orders
@@ -332,6 +334,8 @@ async def create_user_order(
         payment_method=body.payment_method,
         user_id=user_id,
         idempotency_key=body.idempotency_key,
+        recipient_name=body.recipient_name,
+        recipient_phone=body.recipient_phone,
     )
 
     # Auto-create YooKassa payment for card orders

@@ -61,6 +61,8 @@ class CreateOrderRequest(BaseModel):
     customer_email: EmailStr
     customer_phone: str = Field(..., min_length=1, max_length=20)
     customer_name: str = Field(..., min_length=1, max_length=255)
+    recipient_name: str | None = Field(default=None, max_length=255, description="Alternate recipient name (gift orders)")
+    recipient_phone: str | None = Field(default=None, max_length=20, description="Alternate recipient phone (gift orders)")
     idempotency_key: str = Field(..., min_length=1, max_length=64)
     payment_method: str = Field(..., description="'card' or 'cod'")
     create_account: bool = Field(default=False, description="Create user account during checkout")

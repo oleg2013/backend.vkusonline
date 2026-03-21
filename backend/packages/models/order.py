@@ -29,6 +29,10 @@ class Order(Base, TimestampMixin):
     customer_phone: Mapped[str] = mapped_column(String(20), nullable=False)
     customer_name: Mapped[str] = mapped_column(String(255), nullable=False)
 
+    # Alternate recipient (for gift orders)
+    recipient_name: Mapped[str | None] = mapped_column(String(255))
+    recipient_phone: Mapped[str | None] = mapped_column(String(20))
+
     # Delivery
     delivery_provider: Mapped[str] = mapped_column(String(20), nullable=False)
     delivery_city: Mapped[str] = mapped_column(String(255), nullable=False)

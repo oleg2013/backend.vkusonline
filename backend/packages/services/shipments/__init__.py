@@ -88,10 +88,14 @@ def build_magnit_order(order: Order) -> MagnitOrder:
     weight = _total_weight_grams(order)
     size, (length, width, height) = _parcel_size_and_dims(weight)
 
-    first_name, family_name, last_name = _split_customer_name(order.customer_name)
+    # Use recipient data if provided (gift order), otherwise customer data
+    recv_name = order.recipient_name or order.customer_name
+    recv_phone = order.recipient_phone or order.customer_phone
+
+    first_name, family_name, last_name = _split_customer_name(recv_name)
 
     receiver = MagnitReceiver(
-        phone_number=order.customer_phone,
+        phone_number=recv_phone,
         first_name=first_name,
         family_name=family_name,
         last_name=last_name,
@@ -215,11 +219,15 @@ def build_fivepost_order(order: Order) -> FivePostOrder:
         price=order.total / 100,  # declared value (actual total paid)
     )
 
+    # Use recipient data if provided (gift order), otherwise customer data
+    recv_name = order.recipient_name or order.customer_name
+    recv_phone = order.recipient_phone or order.customer_phone
+
     fivepost_order = FivePostOrder(
         sender_order_id=order.order_number,
         client_order_id=order.order_number,
-        client_name=order.customer_name,
-        client_phone=order.customer_phone,
+        client_name=recv_name,
+        client_phone=recv_phone,
         client_email=order.customer_email,
         sender_location=settings.fivepost_partner_location_id or settings.fivepost_warehouse_id,
         receiver_location=order.pickup_point_id or "",

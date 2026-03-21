@@ -85,6 +85,8 @@ async def create_order(
     user_id: str | None = None,
     guest_session_id: str | None = None,
     idempotency_key: str | None = None,
+    recipient_name: str | None = None,
+    recipient_phone: str | None = None,
 ) -> Order:
     # Idempotency check
     if idempotency_key:
@@ -148,6 +150,8 @@ async def create_order(
         total=quote["total"],
         applied_discounts=discounts if discounts else None,
         idempotency_key=idempotency_key,
+        recipient_name=recipient_name,
+        recipient_phone=recipient_phone,
     )
     db.add(order)
     await db.flush()

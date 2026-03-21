@@ -1,0 +1,8 @@
+{
+  "last_order": "VK-260320-7P223W",
+  "guest_session_id": "1544202e-b47f-4abb-9a25-11f35f4bba87",
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4NWQ0MmUzZS05MjM5LTQzMjEtYWU1NC00Yzg2MTdkMmUyOWUiLCJpYXQiOjE3NzQwNDkyMTMsImV4cCI6MTc3NDA1MDExMywidHlwZSI6ImFjY2VzcyJ9.zPCeJlK9dIWWPkelnABDT6MvBHeGVH0qCgVS1-jU02g",
+  "refresh_token": "MzJh0nRN1t5Z7Ad6BSy9yDYz7CG_h1xZ9T85PMyP0WKbjInq31U1wl1RK507oh4U",
+  "base_url": "https://api.vkus.online",
+  "detail_server_response": false
+}
