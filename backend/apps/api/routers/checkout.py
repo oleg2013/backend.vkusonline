@@ -41,6 +41,17 @@ yookassa_client = YooKassaClient(
 # ---------------------------------------------------------------------------
 
 
+@router.get("/checkout/delivery-terms/{provider}")
+async def get_delivery_terms(provider: str):
+    """Return delivery terms/instructions for a given delivery provider."""
+    terms = {
+        "magnit": settings.magnit_delivery_terms,
+        "5post": settings.fivepost_delivery_terms,
+    }
+    text = terms.get(provider, "")
+    return {"provider": provider, "terms": text.replace("\\n", "\n") if text else ""}
+
+
 @router.post("/checkout/delivery-options")
 async def delivery_options(
     body: DeliveryOptionsRequest,

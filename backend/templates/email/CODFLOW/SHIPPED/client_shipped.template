@@ -11,6 +11,7 @@
 <p style="margin:0 0 24px;color:#555;">При полуении нужно будет оплатить заказ, так как вы выбрали наложенный платеж в качестве метода оплаты.</p>
 
 #PVZDETAILS_HTML#
+#DELIVERY_SERVICE_DESCRIPTION_HTML#
 
 #ORDER_LIST_HTML#
 

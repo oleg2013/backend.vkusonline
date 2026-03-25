@@ -10,6 +10,7 @@
 <p style="margin:0 0 24px;color:#555;">Ваш заказ доставлен в пункт выдачи и ожидает вас. Пожалуйста, заберите его в ближайшее время.</p>
 
 #PVZDETAILS_HTML#
+#DELIVERY_SERVICE_DESCRIPTION_HTML#
 
 <div style="margin:0 0 24px;padding:14px 24px;background-color:#FFF8E1;border-radius:10px;text-align:center;">
 <p style="margin:0 0 4px;font-size:13px;color:#888;">К оплате при получении</p>

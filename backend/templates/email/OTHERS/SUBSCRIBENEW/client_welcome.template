@@ -1,0 +1,24 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #EMAIL#
+@@SUBJECT: #SHOP_NAME# — Добро пожаловать в нашу рассылку!
+@@BODY:
+<h2 style="margin:0 0 16px;font-size:22px;font-weight:400;color:#333;font-family:Georgia,'Times New Roman',serif;">Спасибо за подписку!</h2>
+
+<p style="margin:0 0 16px;color:#333;">Здравствуйте!</p>
+<p style="margin:0 0 20px;color:#555;">Вы подписались на рассылку <strong>#SHOP_NAME#</strong>. Теперь вы будете первыми узнавать о:</p>
+
+<ul style="margin:0 0 24px;padding-left:20px;color:#555;">
+<li style="margin:0 0 8px;">Новинках в нашем ассортименте</li>
+<li style="margin:0 0 8px;">Специальных предложениях и скидках</li>
+<li style="margin:0 0 8px;">Акциях и промокодах для подписчиков</li>
+</ul>
+
+<table cellpadding="0" cellspacing="0" border="0" style="margin:28px 0;" width="100%">
+<tr><td align="center">
+<a href="https://#SERVER_NAME#/" style="display:inline-block;padding:14px 40px;background-color:#C8860A;color:#ffffff;text-decoration:none;border-radius:8px;font-size:16px;font-weight:500;">Перейти в магазин</a>
+</td></tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:12px;color:#aaa;text-align:center;">Если вы не подписывались, просто проигнорируйте это письмо.</p>
+<p style="margin:0;font-size:11px;color:#ccc;text-align:center;"><a href="#UNSUBSCRIBE_URL#" style="color:#ccc;text-decoration:underline;">Отписаться от рассылки</a></p>

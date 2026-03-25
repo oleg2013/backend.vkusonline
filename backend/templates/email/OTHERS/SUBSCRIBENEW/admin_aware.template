@@ -1,0 +1,8 @@
+@@ENABLED: true
+@@FROM: #SYS_SHOP_EMAIL#
+@@TO: #SALE_EMAIL#
+@@SUBJECT: Новый подписчик — #EMAIL#
+@@BODY:
+<h2 style="margin:0 0 16px;font-size:18px;color:#333;">Новый подписчик</h2>
+<p style="margin:0 0 8px;color:#555;"><strong>Email:</strong> #EMAIL#</p>
+<p style="margin:0 0 8px;color:#555;"><strong>Дата:</strong> #SUBSCRIBE_DATE#</p>

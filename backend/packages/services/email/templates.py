@@ -393,6 +393,13 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
     # Delivery company human-readable name
     delivery_company = _DELIVERY_COMPANY_MAP.get(provider, provider)
 
+    # Delivery service terms/description
+    delivery_terms = ""
+    if provider == "magnit":
+        delivery_terms = settings.magnit_delivery_terms
+    elif provider == "5post":
+        delivery_terms = settings.fivepost_delivery_terms
+
     pvz_id = getattr(order, "pickup_point_id", "") or ""
 
     # PVZ details block (HTML + text)
@@ -401,6 +408,16 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
     if pvz_data and provider:
         pvz_details_html = _build_pvz_details_html(provider, pvz_data)
         pvz_details_text = _build_pvz_details_text(provider, pvz_data)
+
+    # HTML version of delivery terms (convert \n to styled paragraphs)
+    delivery_terms_html = ""
+    if delivery_terms:
+        lines = [f"<p style='margin:4px 0;'>{line}</p>" for line in delivery_terms.split("\\n") if line.strip()]
+        delivery_terms_html = (
+            f"<div style='background:#f0f7ff;border-left:4px solid #3b82f6;padding:12px 16px;"
+            f"border-radius:8px;margin:12px 0;font-size:14px;color:#334155;'>"
+            f"{''.join(lines)}</div>"
+        )
 
     ctx = {
         "EMAIL": order.customer_email or "",
@@ -419,9 +436,12 @@ def build_order_context(order, extra: dict[str, str] | None = None, pvz_data: di
         "PVZID": pvz_id,
         "PVZDETAILS": pvz_details_text,
         "PVZDETAILS_HTML": pvz_details_html,
+        "DELIVERY_SERVICE_DESCRIPTION": delivery_terms,
+        "DELIVERY_SERVICE_DESCRIPTION_HTML": delivery_terms_html,
         "SERVER_NAME": settings.server_name,
         "SHOP_NAME": settings.shop_name,
         "SALE_EMAIL": settings.sale_email,
+        "SHOP_PHONE": settings.shop_phone,
         "SYS_SHOP_EMAIL": settings.smtp_from_email,
     }
     if extra:

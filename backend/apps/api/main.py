@@ -29,6 +29,7 @@ from apps.api.routers import (
     orders,
     payments,
     public_orders,
+    subscribe,
     webhooks,
 )
 from packages.core.config import settings
@@ -94,6 +95,7 @@ app.include_router(delivery_magnit.router, prefix=PREFIX)
 app.include_router(me.router, prefix=PREFIX)
 app.include_router(webhooks.router, prefix=PREFIX)
 app.include_router(public_orders.router, prefix=PREFIX)
+app.include_router(subscribe.router, prefix=PREFIX)
 app.include_router(admin.router, prefix=PREFIX)
 
 

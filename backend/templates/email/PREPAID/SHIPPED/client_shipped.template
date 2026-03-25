@@ -11,6 +11,7 @@
 <p style="margin:0 0 24px;color:#555;">Заказ уже оплачен, поэтому платить больше ничего не нужно.</p>
 
 #PVZDETAILS_HTML#
+#DELIVERY_SERVICE_DESCRIPTION_HTML#
 
 #ORDER_LIST_WITHOUT_PRICE_HTML#
 

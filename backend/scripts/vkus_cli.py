@@ -58,6 +58,7 @@ MENU_CONTEXTS: dict[str, str] = {
     "5": "admin",
     "6": "qa",
     "7": "settings",
+    "8": "subscribers",
 }
 
 
@@ -551,6 +552,7 @@ class CLIApp:
                     "5. Администрирование",
                     "6. QA — Полный прогон тестов",
                     "7. Настройки",
+                    "8. Подписки",
                     "0. Выход",
                 ],
             )
@@ -577,6 +579,8 @@ class CLIApp:
                     await self.run_qa()
                 elif choice == "7":
                     await self.menu_settings()
+                elif choice == "8":
+                    await self.menu_subscribers()
             except ApiError as e:
                 cprint(f"\n  [bold red]Ошибка API:[/bold red] [{e.code}] {e.message}" if HAS_RICH else f"\n  ERROR: [{e.code}] {e.message}")
                 if e.request_id:
@@ -2284,6 +2288,118 @@ class CLIApp:
         if not sample.get("email"):
             raise AssertionError("Client missing email field")
         return f"{total} clients, first={sample.get('email')}"
+
+    # ── SUBSCRIBERS MENU ──
+
+    async def menu_subscribers(self) -> None:
+        while True:
+            self.show_breadcrumb(["Подписки"])
+            choice = self.show_menu(
+                "Управление подписками",
+                [
+                    "1. Подписать email",
+                    "2. Список подписчиков (БД)",
+                    "3. Проверить подписку",
+                    "4. Отписать email",
+                    "0. Назад",
+                ],
+            )
+            if choice in ("0", "q", ""):
+                break
+            if choice == "1":
+                await self.subscribers_add()
+            elif choice == "2":
+                await self.subscribers_list()
+            elif choice == "3":
+                await self.subscribers_check()
+            elif choice == "4":
+                await self.subscribers_remove()
+
+    async def subscribers_add(self) -> None:
+        """Subscribe an email via API."""
+        email = self.ask("Email для подписки")
+        if not email:
+            return
+        name = self.ask("Имя (необязательно)", "")
+        data = await self.api.call("POST", "/subscribe", body={
+            "email": email,
+            "name": name or None,
+            "source": "cli",
+        })
+        status = data.get("status", "")
+        message = data.get("message", "")
+        if status == "subscribed":
+            cprint(f"  [bold green]✓ {message}[/bold green]" if HAS_RICH else f"  ✓ {message}")
+        elif status == "already_subscribed":
+            cprint(f"  [yellow]⚠ {message}[/yellow]" if HAS_RICH else f"  ⚠ {message}")
+        elif status == "reactivated":
+            cprint(f"  [bold green]✓ {message}[/bold green]" if HAS_RICH else f"  ✓ {message}")
+        else:
+            cprint(f"  {data}")
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+
+    async def subscribers_list(self) -> None:
+        """List subscribers directly from the database."""
+        cprint("  Запрос подписчиков из БД...")
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["ssh", "-t", "vkus.com",
+                 "docker exec -i vkus-backend-postgres-1 psql -U vkus -d vkus_online -c "
+                 "\"SELECT email, is_active, source, created_at::date FROM subscribers ORDER BY created_at DESC LIMIT 50;\""],
+                capture_output=True, text=True, timeout=15,
+            )
+            output = result.stdout.strip()
+            if output:
+                cprint(f"\n{output}\n")
+            else:
+                cprint("  (нет данных)")
+        except Exception as e:
+            cprint(f"  Ошибка: {e}")
+
+    async def subscribers_check(self) -> None:
+        """Check if an email is subscribed."""
+        email = self.ask("Email для проверки")
+        if not email:
+            return
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["ssh", "-t", "vkus.com",
+                 f"docker exec -i vkus-backend-postgres-1 psql -U vkus -d vkus_online -c "
+                 f"\"SELECT email, is_active, source, unsubscribe_token, created_at FROM subscribers WHERE email = '{email}';\""],
+                capture_output=True, text=True, timeout=15,
+            )
+            output = result.stdout.strip()
+            if output:
+                cprint(f"\n{output}\n")
+            else:
+                cprint("  Подписчик не найден")
+        except Exception as e:
+            cprint(f"  Ошибка: {e}")
+
+    async def subscribers_remove(self) -> None:
+        """Unsubscribe an email by finding its token and calling the API."""
+        email = self.ask("Email для отписки")
+        if not email:
+            return
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["ssh", "-t", "vkus.com",
+                 f"docker exec -i vkus-backend-postgres-1 psql -U vkus -d vkus_online -t -A -c "
+                 f"\"SELECT unsubscribe_token FROM subscribers WHERE email = '{email}' AND is_active = true;\""],
+                capture_output=True, text=True, timeout=15,
+            )
+            token = result.stdout.strip()
+            if not token:
+                cprint("  Подписчик не найден или уже отписан")
+                return
+            data = await self.api.call("GET", f"/unsubscribe/{token}")
+            cprint(f"  ✓ Отписан: {email}")
+            self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+        except Exception as e:
+            cprint(f"  Ошибка: {e}")
 
 
 # ---------------------------------------------------------------------------

@@ -10,6 +10,7 @@ from packages.models.pickup_point import PickupPointCache
 from packages.models.provider import ProviderTokenCache, ProviderWebhookEvent
 from packages.models.discount import DiscountRule, CustomerDiscount
 from packages.models.idempotency import IdempotencyKey
+from packages.models.subscriber import Subscriber
 
 __all__ = [
     "User",
@@ -34,4 +35,5 @@ __all__ = [
     "DiscountRule",
     "CustomerDiscount",
     "IdempotencyKey",
+    "Subscriber",
 ]
