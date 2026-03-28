@@ -81,6 +81,40 @@ server {
 gunzip < backup.sql.gz | psql -U vkus vkus_online
 ```
 
+## Database Access
+
+### CLI (из Windows)
+
+```bash
+ssh -t vkus.com "docker exec -i vkus-backend-postgres-1 psql -U vkus -d vkus_online"
+```
+
+- Контейнер: `vkus-backend-postgres-1`
+- User: `vkus`, DB: `vkus_online`, Password: `vkus_secret`
+- Порт `5432` привязан к `127.0.0.1` — недоступен снаружи
+
+### DBeaver (GUI через SSH-туннель)
+
+**Вкладка "Главное":**
+
+| Параметр      | Значение       |
+|---------------|----------------|
+| Хост          | `localhost`    |
+| Порт          | `5432`         |
+| База данных   | `vkus_online`  |
+| Пользователь  | `vkus`         |
+| Пароль        | `vkus_secret`  |
+
+**Вкладка "SSH":**
+
+| Параметр | Значение                                                          |
+|----------|-------------------------------------------------------------------|
+| Хост     | `91.99.55.83`                                                     |
+| Порт     | `22`                                                              |
+| User     | `root`                                                            |
+| Метод    | Публичный ключ                                                    |
+| Ключ     | `Q:\Data\MyPuttyKeys\11_11_2020\openssh_private111120.ppk`       |
+
 ## Updates
 
 ```bash

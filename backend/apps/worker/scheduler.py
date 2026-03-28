@@ -15,6 +15,8 @@ from apps.worker.jobs.send_email import process_email_queue
 from apps.worker.jobs.process_shipments import process_shipment_queue
 from apps.worker.jobs.cleanup_logs import cleanup_logs
 from apps.worker.jobs.sync_magnit_points import sync_magnit_points
+from apps.worker.jobs.sync_prices import sync_prices
+from apps.worker.jobs.cleanup_price_journals import cleanup_price_journals
 from packages.core.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -118,6 +120,24 @@ def setup_scheduler() -> AsyncIOScheduler:
         CronTrigger(hour=2, minute=0),
         id="cleanup_logs",
         name="Cleanup and rotate log files",
+        replace_existing=True,
+    )
+
+    # Sync prices from FTP
+    scheduler.add_job(
+        sync_prices,
+        IntervalTrigger(minutes=settings.price_sync_interval_minutes),
+        id="sync_prices",
+        name="Sync prices from FTP",
+        replace_existing=True,
+    )
+
+    # Cleanup old price import journals daily at 3:30 AM
+    scheduler.add_job(
+        cleanup_price_journals,
+        CronTrigger(hour=3, minute=30),
+        id="cleanup_price_journals",
+        name="Cleanup old price import journals",
         replace_existing=True,
     )
 

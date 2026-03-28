@@ -59,6 +59,7 @@ MENU_CONTEXTS: dict[str, str] = {
     "6": "qa",
     "7": "settings",
     "8": "subscribers",
+    "9": "prices",
 }
 
 
@@ -553,6 +554,7 @@ class CLIApp:
                     "6. QA — Полный прогон тестов",
                     "7. Настройки",
                     "8. Подписки",
+                    "9. Обмен ценами",
                     "0. Выход",
                 ],
             )
@@ -581,6 +583,8 @@ class CLIApp:
                     await self.menu_settings()
                 elif choice == "8":
                     await self.menu_subscribers()
+                elif choice == "9":
+                    await self.menu_prices()
             except ApiError as e:
                 cprint(f"\n  [bold red]Ошибка API:[/bold red] [{e.code}] {e.message}" if HAS_RICH else f"\n  ERROR: [{e.code}] {e.message}")
                 if e.request_id:
@@ -2400,6 +2404,123 @@ class CLIApp:
             self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
         except Exception as e:
             cprint(f"  Ошибка: {e}")
+
+    # ── PRICES MENU ──
+
+    async def menu_prices(self) -> None:
+        if not self.api.admin_secret:
+            secret = self.ask("Admin secret (или env VKUS_ADMIN_SECRET)")
+            if secret:
+                self.api.admin_secret = secret
+                self.state["admin_secret"] = secret
+                self._save()
+
+        while True:
+            self.show_breadcrumb(["Обмен ценами"])
+            choice = self.show_menu(
+                "Обмен ценами",
+                [
+                    "1. Принудительная синхронизация",
+                    "2. Журнал сессий",
+                    "3. Детали сессии",
+                    "4. Цены товара по SKU",
+                    "0. Назад",
+                ],
+            )
+            if choice in ("0", "q", ""):
+                break
+            if choice == "1":
+                await self.prices_force_sync()
+            elif choice == "2":
+                await self.prices_sessions()
+            elif choice == "3":
+                await self.prices_session_detail()
+            elif choice == "4":
+                await self.prices_by_sku()
+
+    async def prices_force_sync(self) -> None:
+        cprint("  Запуск синхронизации цен с FTP...")
+        data = await self.api.call("POST", "/admin/jobs/sync-prices", auth="admin")
+        cprint(f"  {data}")
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+
+    async def prices_sessions(self) -> None:
+        data = await self.api.call("GET", "/admin/price-import/sessions", auth="admin")
+        sessions = data.get("data", []) if isinstance(data, dict) else data if isinstance(data, list) else []
+        if not sessions:
+            cprint("  Нет сессий импорта")
+            return
+        rows = []
+        for s in sessions[:20]:
+            started = (s.get("started_at") or "")[:19]
+            status = s.get("status", "")
+            fname = (s.get("file_name") or "")[:30]
+            matched = str(s.get("matched", 0))
+            updated = str(s.get("updated", 0))
+            created = str(s.get("created", 0))
+            deleted = str(s.get("deleted", 0))
+            sid = (s.get("id") or "")[:8]
+            rows.append([sid, started, status, fname, matched, updated, created, deleted])
+        make_table("Сессии импорта цен", [
+            ("ID", "left"), ("Начало", "left"), ("Статус", "left"), ("Файл", "left"),
+            ("Совп.", "right"), ("Обнов.", "right"), ("Созд.", "right"), ("Удал.", "right"),
+        ], rows)
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+
+    async def prices_session_detail(self) -> None:
+        sid = self.ask("ID сессии (первые 8 символов)")
+        if not sid:
+            return
+        # Try to find full ID from sessions list
+        sessions_data = await self.api.call("GET", "/admin/price-import/sessions", auth="admin")
+        sessions = sessions_data.get("data", []) if isinstance(sessions_data, dict) else []
+        full_id = None
+        for s in sessions:
+            if s.get("id", "").startswith(sid):
+                full_id = s["id"]
+                break
+        if not full_id:
+            cprint(f"  Сессия {sid} не найдена")
+            return
+        data = await self.api.call("GET", f"/admin/price-import/sessions/{full_id}", auth="admin")
+        detail = data.get("data", data) if isinstance(data, dict) else data
+        session_info = detail.get("session", {})
+        logs = detail.get("logs", [])
+        cprint(f"\n  Сессия: {session_info.get('id', '')[:8]}")
+        cprint(f"  Файл: {session_info.get('file_name', '')}")
+        cprint(f"  Статус: {session_info.get('status', '')}")
+        cprint(f"  Товаров: {session_info.get('total_goods', 0)}, совпадений: {session_info.get('matched', 0)}")
+        cprint(f"  Обновлено: {session_info.get('updated', 0)}, создано: {session_info.get('created', 0)}, удалено: {session_info.get('deleted', 0)}")
+        if logs:
+            rows = []
+            for l in logs[:30]:
+                rows.append([l.get("sku", ""), l.get("price_type", ""), l.get("action", ""),
+                             str(l.get("old_price") or "-"), str(l.get("new_price") or "-")])
+            make_table("Журнал изменений", [
+                ("SKU", "left"), ("Тип", "left"), ("Действие", "left"),
+                ("Старая", "right"), ("Новая", "right"),
+            ], rows)
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
+
+    async def prices_by_sku(self) -> None:
+        sku = self.ask("SKU товара", self.state.get("default_sku", DEFAULT_SKU))
+        if not sku:
+            return
+        data = await self.api.call("GET", f"/catalog/products/{sku}/prices")
+        prices = data.get("prices", []) if isinstance(data, dict) else data if isinstance(data, list) else []
+        if not prices:
+            cprint(f"  Нет цен для SKU {sku}")
+            return
+        rows = []
+        for p in prices:
+            rows.append([p.get("price_type", ""), p.get("price_type_label", ""),
+                         str(p.get("price", 0)), f"{p.get('price_rub', 0):.2f} руб",
+                         (p.get("updated_at") or "")[:19]])
+        make_table(f"Цены товара {sku}", [
+            ("Код", "left"), ("Тип", "left"), ("Копейки", "right"),
+            ("Рубли", "right"), ("Обновлено", "left"),
+        ], rows)
+        self.show_result(self.api.last_elapsed_ms, self.api.last_request_id)
 
 
 # ---------------------------------------------------------------------------

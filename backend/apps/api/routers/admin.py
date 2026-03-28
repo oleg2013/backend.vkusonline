@@ -753,6 +753,54 @@ async def delete_client(
     }
 
 
+# ── Price exchange ──
+
+
+@router.post("/jobs/sync-prices")
+async def sync_prices_admin(request_id: RequestId):
+    from apps.worker.jobs.sync_prices import sync_prices
+    import asyncio
+
+    asyncio.create_task(sync_prices())
+    return {
+        "ok": True,
+        "data": {"job": "sync_prices", "status": "triggered"},
+        "request_id": request_id,
+    }
+
+
+@router.get("/price-import/sessions")
+async def list_price_sessions(db: DbSession, request_id: RequestId):
+    from packages.services.prices import get_import_sessions
+
+    sessions = await get_import_sessions(db)
+    return {
+        "ok": True,
+        "data": [
+            {
+                "id": s.id, "file_name": s.file_name, "status": s.status,
+                "started_at": s.started_at.isoformat() if s.started_at else None,
+                "finished_at": s.finished_at.isoformat() if s.finished_at else None,
+                "total_goods": s.total_goods, "matched": s.matched,
+                "updated": s.updated, "created": s.created,
+                "deleted": s.deleted, "skipped": s.skipped, "errors": s.errors,
+            }
+            for s in sessions
+        ],
+        "request_id": request_id,
+    }
+
+
+@router.get("/price-import/sessions/{session_id}")
+async def get_price_session_detail(session_id: str, db: DbSession, request_id: RequestId):
+    from packages.services.prices import get_session_details
+
+    detail = await get_session_details(db, session_id)
+    if not detail:
+        return {"ok": False, "error": "Session not found", "request_id": request_id}
+    return {"ok": True, "data": detail, "request_id": request_id}
+
+
 # ── Test email ──
 
 class TestEmailRequest(BaseModel):

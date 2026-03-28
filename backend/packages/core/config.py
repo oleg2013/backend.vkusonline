@@ -88,6 +88,14 @@ class Settings(BaseSettings):
     magnit_delivery_terms: str = "Вы получите СМС с номером заказа и кодом получения.\nПри получении подтверждения личности не требуется.\nПри получении нужно назвать код и номер заказа из СМС.\nЗаказ хранится в ПВЗ 5 дней. Хранение можно продлить на 5 дней через поддержку."
     fivepost_delivery_terms: str = "Вы получите СМС с кодом для получения.\nПри получении подтверждение личности не нужно.\nЕсли у вас нет возможности забрать заказ, его могут получить те, кому вы сообщите код.\nСрок хранения 7 дней, далее можно будет продлить в личном кабинете на два дня бесплатно."
 
+    # Price exchange (FTP)
+    price_ftp_host: str = "91.221.103.141"
+    price_ftp_port: int = 10921
+    price_ftp_user: str = "coffeeftp"
+    price_ftp_password: str = "S4QKI0v1g0"
+    price_sync_interval_minutes: int = 60
+    price_import_journal_retention_days: int = 30
+
     # Logging
     log_level: str = "INFO"
     log_format: str = "json"

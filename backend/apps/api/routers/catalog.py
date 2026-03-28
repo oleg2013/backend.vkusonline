@@ -96,6 +96,37 @@ async def get_product(sku: str, db: DbSession, request_id: RequestId):
     }
 
 
+@router.get("/products/{sku}/prices")
+async def get_product_prices_endpoint(sku: str, db: DbSession, request_id: RequestId):
+    from packages.services.prices import get_product_prices
+
+    prices = await get_product_prices(db, sku)
+    return {"ok": True, "data": {"sku": sku, "prices": prices}, "request_id": request_id}
+
+
+@router.get("/prices")
+async def get_all_prices(db: DbSession, request_id: RequestId):
+    """Bulk endpoint: returns trade and sale prices for all products."""
+    from sqlalchemy import select
+    from packages.models.price import ProductPrice, PriceType
+    from packages.models.catalog import Product
+
+    result = await db.execute(
+        select(Product.sku, PriceType.code, ProductPrice.price)
+        .join(ProductPrice, ProductPrice.product_id == Product.id)
+        .join(PriceType, ProductPrice.price_type_id == PriceType.id)
+        .where(PriceType.code.in_(["trade", "sale"]))
+    )
+
+    prices: dict[str, dict[str, int]] = {}
+    for sku, code, price in result.all():
+        if sku not in prices:
+            prices[sku] = {}
+        prices[sku][code] = price
+
+    return {"ok": True, "data": prices, "request_id": request_id}
+
+
 @router.get("/collections")
 async def list_collections(request_id: RequestId):
     # TODO: implement collections from DB/seed

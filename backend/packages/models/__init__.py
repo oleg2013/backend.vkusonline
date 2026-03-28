@@ -11,6 +11,7 @@ from packages.models.provider import ProviderTokenCache, ProviderWebhookEvent
 from packages.models.discount import DiscountRule, CustomerDiscount
 from packages.models.idempotency import IdempotencyKey
 from packages.models.subscriber import Subscriber
+from packages.models.price import PriceType, ProductPrice, PriceImportSession, PriceImportLog
 
 __all__ = [
     "User",
@@ -36,4 +37,8 @@ __all__ = [
     "CustomerDiscount",
     "IdempotencyKey",
     "Subscriber",
+    "PriceType",
+    "ProductPrice",
+    "PriceImportSession",
+    "PriceImportLog",
 ]
